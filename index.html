@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📸 Web Photobooth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
+            to { text-shadow: 0 0 30px rgba(233, 69, 96, 0.8), 0 0 40px rgba(233, 69, 96, 0.6); }
+        }
+
+        /* Screen Management */
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Template Selection */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .template-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-card:hover {
+            transform: translateY(-10px);
+            border-color: #e94560;
+            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.3);
+        }
+
+        .template-card.selected {
+            border-color: #e94560;
+            background: rgba(233, 69, 96, 0.2);
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .template-info h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: #e94560;
+        }
+
+        .template-info p {
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+
+        .frame-count-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #e94560;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-top: 30px;
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .upload-section.dragover {
+            background: rgba(233, 69, 96, 0.1);
+            border-color: #e94560;
+        }
+
+        .upload-btn {
+            background: #e94560;
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .upload-btn:hover {
+            background: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Camera Section */
+        .camera-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        #video {
+            width: 100%;
+            height: auto;
+            display: block;
+            transform: scaleX(-1); /* Mirror effect */
+        }
+
+        .camera-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .countdown-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            font-weight: bold;
+            color: #e94560;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.8);
+            display: none;
+            animation: pulse 1s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        .photo-indicator {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .photo-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .photo-dot.active {
+            background: #e94560;
+            box-shadow: 0 0 10px #e94560;
+        }
+
+        .photo-dot.captured {
+            background: #4ecca3;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #ff6b6b;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+
+        .setting-group {
+            margin-bottom: 25px;
+        }
+
+        .setting-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #e94560;
+        }
+
+        .setting-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .option-btn {
+            padding: 10px 25px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            background: transparent;
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            border-color: #e94560;
+            color: #e94560;
+        }
+
+        .option-btn.selected {
+            background: #e94560;
+            border-color: #e94560;
+            color: white;
+        }
+
+        /* Preview Section */
+        .preview-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        #finalCanvas {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Frame Position Editor */
+        .frame-editor {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .frame-editor.active {
+            display: block;
+        }
+
+        .slot-config {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .slot-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .slot-item label {
+            min-width: 80px;
+            font-weight: 600;
+        }
+
+        .slot-item input {
+            width: 80px;
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Flash Effect */
+        .flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .flash.active {
+            animation: flashAnim 0.3s ease;
+        }
+
+        @keyframes flashAnim {
+            0% { opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .template-grid { grid-template-columns: 1fr; }
+            .countdown-display { font-size: 5rem; }
+            .controls { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 300px; }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #e94560;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Canvas for processing */
+        #processCanvas {
+            display: none;
+        }
+
+        /* Info badges */
+        .info-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 10px;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #e94560, #ff6b6b);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="flash" id="flash"></div>
+    
+    <div class="container">
+        <h1>📸 Web Photobooth</h1>
+
+        <!-- Screen 1: Template Selection -->
+        <div class="screen active" id="screen-template">
+            <h2 style="text-align: center; margin-bottom: 10px;">Pilih Template Frame</h2>
+            <p style="text-align: center; color: #aaa; margin-bottom: 30px;">
+                Pilih salah satu desain frame yang tersedia
+            </p>
+            
+            <div class="template-grid">
+                <!-- Template 1: Single Frame (Vintage) -->
+                <div class="template-card" onclick="selectTemplate(1)" data-frames="1">
+                    <div class="frame-count-badge">1 Frame</div>
+                    <div class="template-preview">
+                        <img src="/mnt/kimi/upload/20260325_224420(1).png" alt="Vintage Frame" id="preview-template-1">
+                    </div>
+                    <div class="template-info">
+                        <h3>Vintage Memories</h3>
+                        <p>Frame single dengan aesthetic scrapbook vintage, dilengkapi bunga kering dan teks "don't you remember?"</p>
+                        <div class="info-badge">📷 1 Foto</div>
+                    </div>
+                </div>
+
+                <!-- Template 2: Triple Frame (Love You) -->
+                <div class="template-card" onclick="selectTemplate(2)" data-frames="3">
+                    <div class="frame-count-badge">3 Frames</div>
+                    <div class="template-preview">
+                        <img src="/mnt/kimi/upload/20260325_225121.png" alt="Triple Frame" id="preview-template-2">
+                    </div>
+                    <div class="template-info">
+                        <h3>Love You Strip</h3>
+                        <p>Photo strip vertikal dengan 3 slot foto dan teks romantis "love ♥ you" di bagian bawah</p>
+                        <div class="info-badge">📷 3 Foto</div>
+                    </div>
+                </div>
+
+                <!-- Template 3: Collage Frame (4 Polaroids) -->
+                <div class="template-card" onclick="selectTemplate(3)" data-frames="4">
+                    <div class="frame-count-badge">4 Frames</div>
+                    <div class="template-preview">
+                        <img src="/mnt/kimi/upload/20260325_225254(1).png" alt="Collage Frame" id="preview-template-3">
+                    </div>
+                    <div class="template-info">
+                        <h3>Polaroid Collage</h3>
+                        <p>4 polaroid yang ditata artistic dengan masking tape, cocok untuk koleksi foto bersama teman</p>
+                        <div class="info-badge">📷 4 Foto</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls" style="margin-top: 40px;">
+                <button class="btn btn-primary" id="btn-next-upload" onclick="goToUpload()" disabled>
+                    Lanjutkan →
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Upload Frame -->
+        <div class="screen" id="screen-upload">
+            <h2 style="text-align: center; margin-bottom: 10px;">Upload Frame Template</h2>
+            <p style="text-align: center; color: #aaa; margin-bottom: 30px;">
+                Upload file PNG transparan sesuai template yang dipilih
+            </p>
+
+            <div class="upload-section" id="dropZone">
+                <div style="font-size: 4rem; margin-bottom: 20px;">📁</div>
+                <h3>Drag & Drop file frame di sini</h3>
+                <p style="color: #aaa; margin: 15px 0;">atau</p>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Pilih File
+                </button>
+                <input type="file" id="fileInput" class="file-input" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelect(event)">
+                <p style="color: #888; margin-top: 20px; font-size: 0.9rem;">
+                    Format yang diterima: PNG (dengan transparan), JPG, JPEG<br>
+                    Ukuran maksimal: 10MB
+                </p>
+            </div>
+
+            <div class="settings-panel" id="uploaded-info" style="display: none;">
+                <h3 style="color: #e94560; margin-bottom: 15px;">✅ File Berhasil Diupload</h3>
+                <div id="file-details"></div>
+                
+                <div class="frame-editor active" id="frame-editor">
+                    <h4 style="margin-bottom: 15px;">Konfigurasi Posisi Slot Foto</h4>
+                    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">
+                        Sesuaikan posisi dan ukuran setiap slot foto dalam frame (dalam persen %)
+                    </p>
+                    <div class="slot-config" id="slot-config">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="goBack('screen-template')">← Kembali</button>
+                <button class="btn btn-primary" id="btn-next-camera" onclick="goToCamera()" disabled>
+                    Lanjut ke Kamera →
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 3: Camera & Settings -->
+        <div class="screen" id="screen-camera">
+            <h2 style="text-align: center; margin-bottom: 20px;">Sesuaikan Pengaturan</h2>
+
+            <div class="settings-panel">
+                <div class="setting-group">
+                    <label>⏱️ Countdown Timer</label>
+                    <div class="setting-options">
+                        <button class="option-btn selected" onclick="setCountdown(3, this)">3 Detik</button>
+                        <button class="option-btn" onclick="setCountdown(6, this)">6 Detik</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>📐 Output Size</label>
+                    <div class="setting-options">
+                        <button class="option-btn selected" onclick="setOutputSize('digital', this)">Digital (1080px)</button>
+                        <button class="option-btn" onclick="setOutputSize('print', this)">Print (1800px)</button>
+                    </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>📷 Kamera</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <select id="cameraSelect" style="padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);">
+                            <option value="">Kamera Default</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="refreshCameras()" style="padding: 10px 20px;">🔄 Refresh</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="camera-container" style="margin-top: 30px;">
+                <video id="video" autoplay playsinline></video>
+                <div class="camera-overlay">
+                    <div class="photo-indicator" id="photo-indicator">
+                        <!-- Generated dynamically -->
+                    </div>
+                </div>
+                <div class="countdown-display" id="countdown">3</div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="goBack('screen-upload')">← Kembali</button>
+                <button class="btn btn-primary" id="btn-start" onclick="startPhotoSession()">
+                    📸 Mulai Foto
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Processing -->
+        <div class="screen" id="screen-processing">
+            <div style="text-align: center; padding: 60px 20px;">
+                <div class="spinner"></div>
+                <h2 style="margin-top: 30px;">Memproses Foto...</h2>
+                <p style="color: #aaa; margin-top: 15px;">Menggabungkan foto dengan frame template</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 5: Preview & Download -->
+        <div class="screen" id="screen-preview">
+            <h2 style="text-align: center; margin-bottom: 20px;">🎉 Hasil Foto Anda</h2>
+            
+            <div class="preview-container">
+                <canvas id="finalCanvas"></canvas>
+                
+                <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="downloadResult('png')">
+                        💾 Download PNG
+                    </button>
+                    <button class="btn btn-secondary" onclick="downloadResult('jpg')">
+                        💾 Download JPG
+                    </button>
+                    <button class="btn btn-secondary" onclick="shareResult()">
+                        📤 Share
+                    </button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-secondary" onclick="retakePhotos()">🔄 Ulangi Foto</button>
+                <button class="btn btn-secondary" onclick="goBack('screen-template')">🏠 Menu Awal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden canvas for processing -->
+    <canvas id="processCanvas"></canvas>
+
+    <script>
+        // State Management
+        const state = {
+            selectedTemplate: null,
+            frameCount: 0,
+            uploadedFrame: null,
+            countdown: 3,
+            outputSize: 'digital',
+            photos: [],
+            currentPhotoIndex: 0,
+            isCapturing: false,
+            stream: null,
+            slotConfigs: []
+        };
+
+        // Template configurations with default slot positions
+        const templateConfigs = {
+            1: { // Vintage Single Frame
+                slots: [
+                    { x: 22, y: 15, width: 56, height: 45, rotation: 0 }
+                ]
+            },
+            2: { // Triple Love Frame
+                slots: [
+                    { x: 28, y: 8, width: 44, height: 26, rotation: 0 },
+                    { x: 28, y: 36, width: 44, height: 26, rotation: 0 },
+                    { x: 28, y: 64, width: 44, height: 26, rotation: 0 }
+                ]
+            },
+            3: { // Collage 4 Polaroids
+                slots: [
+                    { x: 12, y: 10, width: 35, height: 28, rotation: -8 },
+                    { x: 52, y: 8, width: 35, height: 28, rotation: 6 },
+                    { x: 20, y: 55, width: 35, height: 28, rotation: 5 },
+                    { x: 55, y: 52, width: 35, height: 28, rotation: -5 }
+                ]
+            }
+        };
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goBack(screenId) {
+            showScreen(screenId);
+            if (screenId === 'screen-template') {
+                resetState();
+            }
+        }
+
+        function resetState() {
+            state.photos = [];
+            state.currentPhotoIndex = 0;
+            state.isCapturing = false;
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+                state.stream = null;
+            }
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById('btn-next-upload').disabled = true;
+        }
+
+        // Template Selection
+        function selectTemplate(templateId) {
+            state.selectedTemplate = templateId;
+            state.frameCount = templateConfigs[templateId].slots.length;
+            
+            // Update UI
+            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`[onclick="selectTemplate(${templateId})"]`).classList.add('selected');
+            document.getElementById('btn-next-upload').disabled = false;
+
+            // Pre-fill slot configs
+            state.slotConfigs = JSON.parse(JSON.stringify(templateConfigs[templateId].slots));
+        }
+
+        function goToUpload() {
+            showScreen('screen-upload');
+            setupDragAndDrop();
+        }
+
+        // File Upload
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('dropZone');
+            
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
+            
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('dragover');
+            });
+            
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length) processFile(files[0]);
+            });
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) processFile(file);
+        }
+
+        function processFile(file) {
+            if (!file.type.match(/image.*/)) {
+                alert('Mohon upload file gambar (PNG/JPG)');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.uploadedFrame = img;
+                    showUploadedInfo(file, img);
+                    generateSlotEditor();
+                    document.getElementById('btn-next-camera').disabled = false;
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showUploadedInfo(file, img) {
+            document.getElementById('uploaded-info').style.display = 'block';
+            document.getElementById('file-details').innerHTML = `
+                <p><strong>Nama:</strong> ${file.name}</p>
+                <p><strong>Ukuran:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                <p><strong>Dimensi:</strong> ${img.width} x ${img.height} px</p>
+            `;
+        }
+
+        function generateSlotEditor() {
+            const container = document.getElementById('slot-config');
+            container.innerHTML = '';
+            
+            state.slotConfigs.forEach((slot, index) => {
+                const div = document.createElement('div');
+                div.className = 'slot-item';
+                div.innerHTML = `
+                    <label>Slot ${index + 1}:</label>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <span>X: <input type="number" value="${slot.x}" onchange="updateSlot(${index}, 'x', this.value)" min="0" max="100">%</span>
+                        <span>Y: <input type="number" value="${slot.y}" onchange="updateSlot(${index}, 'y', this.value)" min="0" max="100">%</span>
+                        <span>W: <input type="number" value="${slot.width}" onchange="updateSlot(${index}, 'width', this.value)" min="10" max="100">%</span>
+                        <span>H: <input type="number" value="${slot.height}" onchange="updateSlot(${index}, 'height', this.value)" min="10" max="100">%</span>
+                        <span>Rot: <input type="number" value="${slot.rotation}" onchange="updateSlot(${index}, 'rotation', this.value)" min="-45" max="45">°</span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateSlot(index, property, value) {
+            state.slotConfigs[index][property] = parseFloat(value);
+        }
+
+        // Camera Functions
+        async function goToCamera() {
+            showScreen('screen-camera');
+            await initCamera();
+            generatePhotoIndicator();
+        }
+
+        async function initCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 }
+                    },
+                    audio: false
+                };
+
+                state.stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('video');
+                video.srcObject = state.stream;
+                
+                // Populate camera devices
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const cameras = devices.filter(d => d.kind === 'videoinput');
+                const select = document.getElementById('cameraSelect');
+                select.innerHTML = '<option value="">Kamera Default</option>';
+                cameras.forEach((cam, idx) => {
+                    select.innerHTML += `<option value="${cam.deviceId}">${cam.label || 'Kamera ' + (idx + 1)}</option>`;
+                });
+                
+                select.onchange = async (e) => {
+                    if (e.target.value) {
+                        const newConstraints = {
+                            video: { deviceId: { exact: e.target.value } },
+                            audio: false
+                        };
+                        state.stream.getTracks().forEach(t => t.stop());
+                        state.stream = await navigator.mediaDevices.getUserMedia(newConstraints);
+                        video.srcObject = state.stream;
+                    }
+                };
+            } catch (err) {
+                alert('Tidak dapat mengakses kamera: ' + err.message);
+            }
+        }
+
+        async function refreshCameras() {
+            await initCamera();
+        }
+
+        function generatePhotoIndicator() {
+            const container = document.getElementById('photo-indicator');
+            container.innerHTML = '';
+            for (let i = 0; i < state.frameCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'photo-dot';
+                dot.id = `dot-${i}`;
+                container.appendChild(dot);
+            }
+        }
+
+        function setCountdown(seconds, btn) {
+            state.countdown = seconds;
+            document.querySelectorAll('.setting-group .option-btn').forEach(b => {
+                if (b.textContent.includes('Detik')) b.classList.remove('selected');
+            });
+            btn.classList.add('selected');
+        }
+
+        function setOutputSize(size, btn) {
+            state.outputSize = size;
+            btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+        }
+
+        // Photo Session
+        async function startPhotoSession() {
+            if (state.isCapturing) return;
+            state.isCapturing = true;
+            state.photos = [];
+            state.currentPhotoIndex = 0;
+            
+            document.getElementById('btn-start').disabled = true;
+            
+            // Reset indicators
+            document.querySelectorAll('.photo-dot').forEach(d => {
+                d.classList.remove('active', 'captured');
+            });
+            
+            await captureSequence();
+        }
+
+        async function captureSequence() {
+            for (let i = 0; i < state.frameCount; i++) {
+                state.currentPhotoIndex = i;
+                
+                // Update indicator
+                document.querySelectorAll('.photo-dot').forEach((d, idx) => {
+                    d.classList.toggle('active', idx === i);
+                });
+                
+                // Countdown
+                await runCountdown();
+                
+                // Capture
+                await capturePhoto();
+                
+                // Mark as captured
+                document.getElementById(`dot-${i}`).classList.remove('active');
+                document.getElementById(`dot-${i}`).classList.add('captured');
+                
+                // Small delay between shots
+                if (i < state.frameCount - 1) {
+                    await new Promise(r => setTimeout(r, 1000));
+                }
+            }
+            
+            // All photos captured
+            state.isCapturing = false;
+            setTimeout(() => {
+                showScreen('screen-processing');
+                setTimeout(renderFinalImage, 500);
+            }, 500);
+        }
+
+        async function runCountdown() {
+            const display = document.getElementById('countdown');
+            display.style.display = 'block';
+            
+            for (let i = state.countdown; i > 0; i--) {
+                display.textContent = i;
+                display.style.animation = 'none';
+                setTimeout(() => display.style.animation = 'pulse 1s ease-in-out', 10);
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            
+            display.style.display = 'none';
+            
+            // Flash effect
+            const flash = document.getElementById('flash');
+            flash.classList.add('active');
+            setTimeout(() => flash.classList.remove('active'), 300);
+        }
+
+        function capturePhoto() {
+            return new Promise((resolve) => {
+                const video = document.getElementById('video');
+                const canvas = document.getElementById('processCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set canvas size to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                
+                // Draw video frame (mirrored back to normal for final)
+                ctx.translate(canvas.width, 0);
+                ctx.scale(-1, 1);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                
+                // Save photo
+                const photoData = canvas.toDataURL('image/jpeg', 0.95);
+                state.photos.push(photoData);
+                
+                resolve();
+            });
+        }
+
+        // Rendering
+        async function renderFinalImage() {
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0%';
+            
+            const frame = state.uploadedFrame;
+            const finalCanvas = document.getElementById('finalCanvas');
+            const ctx = finalCanvas.getContext('2d');
+            
+            // Set output size
+            const outputWidth = state.outputSize === 'print' ? 1800 : 1080;
+            const scale = outputWidth / frame.width;
+            const outputHeight = frame.height * scale;
+            
+            finalCanvas.width = outputWidth;
+            finalCanvas.height = outputHeight;
+            
+            progressBar.style.width = '30%';
+            
+            // Draw frame background
+            ctx.drawImage(frame, 0, 0, outputWidth, outputHeight);
+            
+            progressBar.style.width = '50%';
+            
+            // Draw each photo in its slot
+            for (let i = 0; i < state.photos.length; i++) {
+                await drawPhotoInSlot(ctx, state.photos[i], state.slotConfigs[i], outputWidth, outputHeight);
+                progressBar.style.width = `${50 + ((i + 1) / state.photos.length) * 40}%`;
+            }
+            
+            // Redraw frame on top (as overlay)
+            ctx.drawImage(frame, 0, 0, outputWidth, outputHeight);
+            
+            progressBar.style.width = '100%';
+            
+            setTimeout(() => {
+                showScreen('screen-preview');
+            }, 500);
+        }
+
+        function drawPhotoInSlot(ctx, photoSrc, slotConfig, canvasWidth, canvasHeight) {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    const slotX = (slotConfig.x / 100) * canvasWidth;
+                    const slotY = (slotConfig.y / 100) * canvasHeight;
+                    const slotW = (slotConfig.width / 100) * canvasWidth;
+                    const slotH = (slotConfig.height / 100) * canvasHeight;
+                    
+                    ctx.save();
+                    
+                    // Create clipping path for slot
+                    ctx.beginPath();
+                    ctx.rect(slotX, slotY, slotW, slotH);
+                    ctx.clip();
+                    
+                    // Calculate scale to fill slot while maintaining aspect ratio
+                    const imgAspect = img.width / img.height;
+                    const slotAspect = slotW / slotH;
+                    
+                    let drawW, drawH, drawX, drawY;
+                    
+                    if (imgAspect > slotAspect) {
+                        drawH = slotH;
+                        drawW = drawH * imgAspect;
+                        drawX = slotX - (drawW - slotW) / 2;
+                        drawY = slotY;
+                    } else {
+                        drawW = slotW;
+                        drawH = drawW / imgAspect;
+                        drawX = slotX;
+                        drawY = slotY - (drawH - slotH) / 2;
+                    }
+                    
+                    // Apply rotation if specified
+                    if (slotConfig.rotation) {
+                        ctx.translate(slotX + slotW/2, slotY + slotH/2);
+                        ctx.rotate(slotConfig.rotation * Math.PI / 180);
+                        ctx.translate(-(slotX + slotW/2), -(slotY + slotH/2));
+                    }
+                    
+                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
+                    ctx.restore();
+                    
+                    resolve();
+                };
+                img.src = photoSrc;
+            });
+        }
+
+        // Download & Share
+        function downloadResult(format) {
+            const canvas = document.getElementById('finalCanvas');
+            const link = document.createElement('a');
+            
+            const timestamp = new Date().getTime();
+            const filename = `photobooth_${timestamp}.${format}`;
+            
+            if (format === 'jpg') {
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+            } else {
+                link.href = canvas.toDataURL('image/png');
+            }
+            
+            link.download = filename;
+            link.click();
+        }
+
+        async function shareResult() {
+            const canvas = document.getElementById('finalCanvas');
+            
+            try {
+                canvas.toBlob(async (blob) => {
+                    const file = new File([blob], 'photobooth-result.png', { type: 'image/png' });
+                    
+                    if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'My Photobooth Photo',
+                            text: 'Check out my photobooth photo!'
+                        });
+                    } else {
+                        // Fallback to download
+                        downloadResult('png');
+                    }
+                });
+            } catch (err) {
+                console.error('Share failed:', err);
+                downloadResult('png');
+            }
+        }
+
+        function retakePhotos() {
+            state.photos = [];
+            state.currentPhotoIndex = 0;
+            goToCamera();
+            document.getElementById('btn-start').disabled = false;
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (state.stream) {
+                state.stream.getTracks().forEach(track => track.stop());
+            }
+        });
+
+        // Handle iOS orientation changes
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                if (state.stream && document.getElementById('screen-camera').classList.contains('active')) {
+                    const video = document.getElementById('video');
+                    video.style.transform = 'scaleX(-1)';
+                }
+            }, 300);
+        });
+    </script>
+</body>
+</html>
