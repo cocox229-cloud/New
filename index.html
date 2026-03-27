@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,92 +13,109 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow-x: hidden;
         }
-        
+
         .glass-panel {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
-        
+
         .countdown-number {
             animation: pulse-scale 1s ease-in-out;
-            text-shadow: 0 0 40px rgba(255,255,255,0.8);
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
         }
-        
+
         @keyframes pulse-scale {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
-        
+
         .flash-overlay {
             animation: flash 0.3s ease-out;
         }
-        
+
         @keyframes flash {
-            0% { opacity: 1; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
-        
+
         .photo-slot {
             transition: all 0.3s ease;
-            border: 3px dashed rgba(255,255,255,0.5);
+            border: 3px dashed rgba(255, 255, 255, 0.5);
         }
-        
+
         .photo-slot:hover {
             border-color: #fff;
             transform: scale(1.02);
         }
-        
+
         .photo-slot.filled {
             border-style: solid;
             border-color: #10b981;
         }
-        
+
         .shutter-btn {
             background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
             box-shadow: 0 10px 30px rgba(238, 90, 90, 0.4);
             transition: all 0.3s ease;
         }
-        
+
         .shutter-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 15px 40px rgba(238, 90, 90, 0.6);
         }
-        
+
         .shutter-btn:active {
             transform: translateY(-1px);
         }
-        
+
         .template-card {
             transition: all 0.3s ease;
             cursor: pointer;
         }
-        
+
         .template-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        
+
         .template-card.active {
             border: 3px solid #10b981;
             transform: scale(1.05);
         }
-        
+
         .hidden-canvas {
             display: none;
         }
-        
+
         .preview-container {
             position: relative;
             overflow: hidden;
         }
-        
+
         .live-preview {
-            transform: scaleX(-1); /* Mirror effect */
+            transform: scaleX(-1);
+            /* Mirror effect */
         }
-        
+
         .frame-overlay {
             position: absolute;
             top: 0;
@@ -107,57 +125,69 @@
             pointer-events: none;
             z-index: 10;
         }
-        
+
         .slot-marker {
             position: absolute;
-            border: 3px solid rgba(255,255,255,0.8);
-            background: rgba(255,255,255,0.1);
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(2px);
             transition: all 0.3s ease;
         }
-        
+
         .slot-marker.active {
             border-color: #10b981;
             background: rgba(16, 185, 129, 0.2);
             box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
         }
-        
+
         .captured-thumb {
             animation: slide-in 0.5s ease-out;
         }
-        
+
         @keyframes slide-in {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
-        
+
         .progress-ring {
             transform: rotate(-90deg);
         }
-        
+
         .progress-ring-circle {
             transition: stroke-dashoffset 0.35s;
         }
     </style>
 </head>
+
 <body class="min-h-screen text-white">
 
     <!-- Header -->
     <header class="glass-panel fixed top-0 w-full z-50 px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-600 rounded-xl flex items-center justify-center text-xl font-bold">
                     📸
                 </div>
-                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-violet-300">
+                <h1
+                    class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-violet-300">
                     LumaBooth Clone
                 </h1>
             </div>
             <div class="flex gap-4">
-                <button onclick="app.showTemplateManager()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
+                <button onclick="app.showTemplateManager()"
+                    class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
                     🎨 Template Manager
                 </button>
-                <button onclick="app.resetSession()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
+                <button onclick="app.resetSession()"
+                    class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
                     🔄 Reset
                 </button>
             </div>
@@ -166,31 +196,34 @@
 
     <!-- Main Content -->
     <main class="pt-24 pb-12 px-6 max-w-7xl mx-auto">
-        
+
         <!-- Template Selection Modal -->
-        <div id="templateModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div id="templateModal"
+            class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
             <div class="glass-panel rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
                 <h2 class="text-3xl font-bold mb-6 text-center">Pilih Template Frame</h2>
-                
+
                 <!-- Template Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="templateGrid">
                     <!-- Generated by JS -->
                 </div>
-                
+
                 <!-- Custom Template Upload -->
                 <div class="border-t border-white/20 pt-6">
                     <h3 class="text-xl font-semibold mb-4">Upload Template Custom</h3>
                     <div class="flex gap-4 items-center">
                         <input type="file" id="frameUpload" accept="image/png,image/jpeg" class="hidden">
-                        <button onclick="document.getElementById('frameUpload').click()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition">
+                        <button onclick="document.getElementById('frameUpload').click()"
+                            class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition">
                             📁 Upload Frame PNG
                         </button>
                         <span class="text-sm text-gray-300">Format: PNG dengan area transparan untuk foto</span>
                     </div>
                 </div>
-                
+
                 <div class="mt-8 text-center">
-                    <button onclick="app.closeTemplateModal()" class="px-8 py-3 rounded-xl bg-white/20 hover:bg-white/30 transition">
+                    <button onclick="app.closeTemplateModal()"
+                        class="px-8 py-3 rounded-xl bg-white/20 hover:bg-white/30 transition">
                         Tutup
                     </button>
                 </div>
@@ -199,21 +232,25 @@
 
         <!-- Editor Modal untuk atur rectangle -->
         <div id="editorModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden">
-            <div class="glass-panel rounded-2xl p-6 max-w-5xl w-full mx-4">
+            <div class="glass-panel rounded-2xl p-6 max-w-5xl w-full mx-4 max-h-[90vh] overflow-y-auto">
                 <h2 class="text-2xl font-bold mb-4">Atur Posisi Foto (Slots)</h2>
-                <p class="text-sm text-gray-300 mb-4">Klik dan drag untuk membuat area foto. Tekan Delete untuk menghapus slot terakhir.</p>
-                
-                <div class="relative bg-gray-800 rounded-xl overflow-hidden mb-4" id="editorContainer" style="height: 600px;">
+                <p class="text-sm text-gray-300 mb-4">Klik dan drag untuk membuat area foto. Tekan Delete untuk
+                    menghapus slot terakhir.</p>
+
+                <div class="relative bg-gray-800 rounded-xl overflow-hidden mb-4" id="editorContainer"
+                    style="height: 500px;">
                     <img id="editorFrame" class="w-full h-full object-contain" src="" alt="Frame">
                     <canvas id="editorCanvas" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
                 </div>
-                
-                <div class="flex justify-between items-center">
+
+                <div class="flex justify-between items-center sticky button-0 bg-black/40 backdrop-blur p-3 rounded-xl">
                     <div class="flex gap-2">
-                        <button onclick="app.clearSlots()" class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300">
+                        <button onclick="app.clearSlots()"
+                            class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300">
                             Clear All
                         </button>
-                        <button onclick="app.addSlot()" class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300">
+                        <button onclick="app.addSlot()"
+                            class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300">
                             + Add Slot
                         </button>
                     </div>
@@ -221,7 +258,8 @@
                         <button onclick="app.closeEditor()" class="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20">
                             Batal
                         </button>
-                        <button onclick="app.saveTemplate()" class="px-6 py-2 rounded-lg bg-green-500 hover:bg-green-600">
+                        <button onclick="app.saveTemplate()"
+                            class="px-6 py-2 rounded-lg bg-green-500 hover:bg-green-600">
                             Simpan Template
                         </button>
                     </div>
@@ -231,29 +269,30 @@
 
         <!-- Main Photobooth Interface -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-            
+
             <!-- Left Panel: Camera & Preview -->
             <div class="lg:col-span-7 space-y-6">
-                
+
                 <!-- Camera View -->
                 <div class="glass-panel rounded-2xl p-4 relative overflow-hidden">
                     <div class="preview-container rounded-xl bg-black aspect-[4/3] relative">
                         <video id="camera" class="live-preview w-full h-full object-cover" autoplay playsinline></video>
-                        
+
                         <!-- Frame Overlay -->
                         <img id="liveFrame" class="frame-overlay hidden" src="" alt="Frame">
-                        
+
                         <!-- Slot Markers -->
                         <div id="slotMarkers" class="absolute inset-0 pointer-events-none"></div>
-                        
+
                         <!-- Countdown Overlay -->
-                        <div id="countdownOverlay" class="absolute inset-0 flex items-center justify-center bg-black/50 hidden z-20">
+                        <div id="countdownOverlay"
+                            class="absolute inset-0 flex items-center justify-center bg-black/50 hidden z-20">
                             <div id="countdownNumber" class="text-9xl font-bold countdown-number">3</div>
                         </div>
-                        
+
                         <!-- Flash Effect -->
                         <div id="flash" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-30"></div>
-                        
+
                         <!-- Capture Progress -->
                         <div id="captureProgress" class="absolute top-4 left-4 right-4 hidden z-20">
                             <div class="flex justify-between mb-2 text-sm font-semibold">
@@ -261,22 +300,27 @@
                                 <span id="captureStatus">Bersiap...</span>
                             </div>
                             <div class="h-2 bg-white/20 rounded-full overflow-hidden">
-                                <div id="progressBar" class="h-full bg-gradient-to-r from-pink-500 to-violet-500 transition-all duration-300" style="width: 0%"></div>
+                                <div id="progressBar"
+                                    class="h-full bg-gradient-to-r from-pink-500 to-violet-500 transition-all duration-300"
+                                    style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Camera Controls -->
                     <div class="flex justify-center gap-4 mt-6">
-                        <button onclick="app.toggleCamera()" class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Ganti Kamera">
+                        <button onclick="app.toggleCamera()"
+                            class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Ganti Kamera">
                             🔄
                         </button>
-                        
-                        <button id="captureBtn" onclick="app.startCapture()" class="shutter-btn w-20 h-20 rounded-full flex items-center justify-center text-3xl disabled:opacity-50 disabled:cursor-not-allowed">
+
+                        <button id="captureBtn" onclick="app.startCapture()"
+                            class="shutter-btn w-20 h-20 rounded-full flex items-center justify-center text-3xl disabled:opacity-50 disabled:cursor-not-allowed">
                             📷
                         </button>
-                        
-                        <button onclick="app.toggleFullscreen()" class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Fullscreen">
+
+                        <button onclick="app.toggleFullscreen()"
+                            class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Fullscreen">
                             ⛶
                         </button>
                     </div>
@@ -289,11 +333,12 @@
                             <h3 class="text-lg font-semibold mb-1">Template Aktif</h3>
                             <p id="templateName" class="text-gray-300 text-sm">Classic 3-Photo Strip</p>
                         </div>
-                        <button onclick="app.editCurrentTemplate()" class="text-sm px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20">
+                        <button onclick="app.editCurrentTemplate()"
+                            class="text-sm px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20">
                             ✏️ Edit Slots
                         </button>
                     </div>
-                    
+
                     <div class="flex gap-2 flex-wrap" id="slotIndicators">
                         <!-- Slot indicators generated by JS -->
                     </div>
@@ -302,7 +347,7 @@
 
             <!-- Right Panel: Results & Gallery -->
             <div class="lg:col-span-5 space-y-6">
-                
+
                 <!-- Live Preview Strip -->
                 <div class="glass-panel rounded-2xl p-6">
                     <h3 class="text-lg font-semibold mb-4">Preview Strip</h3>
@@ -319,17 +364,20 @@
                     <div class="relative rounded-xl overflow-hidden bg-gray-900 mb-4">
                         <canvas id="finalCanvas" class="w-full"></canvas>
                     </div>
-                    
+
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="app.downloadResult()" class="py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 font-semibold transition">
+                        <button onclick="app.downloadResult()"
+                            class="py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 font-semibold transition">
                             💾 Download
                         </button>
-                        <button onclick="app.printResult()" class="py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-semibold transition">
+                        <button onclick="app.printResult()"
+                            class="py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-semibold transition">
                             🖨️ Print
                         </button>
                     </div>
-                    
-                    <button onclick="app.shareResult()" class="w-full mt-3 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-semibold transition">
+
+                    <button onclick="app.shareResult()"
+                        class="w-full mt-3 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-semibold transition">
                         📤 Share / QR Code
                     </button>
                 </div>
@@ -337,25 +385,28 @@
                 <!-- Quick Actions -->
                 <div class="glass-panel rounded-2xl p-6">
                     <h3 class="text-lg font-semibold mb-4">Pengaturan Cepat</h3>
-                    
+
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2">Jumlah Foto: <span id="photoCountDisplay">3</span></label>
-                            <input type="range" id="photoCount" min="1" max="6" value="3" 
-                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                                   oninput="app.updatePhotoCount(this.value)">
+                            <label class="block text-sm text-gray-300 mb-2">Jumlah Foto: <span
+                                    id="photoCountDisplay">3</span></label>
+                            <input type="range" id="photoCount" min="1" max="6" value="3"
+                                class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                oninput="app.updatePhotoCount(this.value)">
                         </div>
-                        
+
                         <div>
-                            <label class="block text-sm text-gray-300 mb-2">Countdown: <span id="countdownDisplay">3</span> detik</label>
-                            <input type="range" id="countdownDuration" min="1" max="10" value="3" 
-                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
-                                   oninput="app.updateCountdown(this.value)">
+                            <label class="block text-sm text-gray-300 mb-2">Countdown: <span
+                                    id="countdownDisplay">3</span> detik</label>
+                            <input type="range" id="countdownDuration" min="1" max="10" value="3"
+                                class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                oninput="app.updateCountdown(this.value)">
                         </div>
-                        
+
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-300">Mirror Effect</span>
-                            <button onclick="app.toggleMirror()" id="mirrorBtn" class="w-12 h-6 rounded-full bg-green-500 relative transition">
+                            <button onclick="app.toggleMirror()" id="mirrorBtn"
+                                class="w-12 h-6 rounded-full bg-green-500 relative transition">
                                 <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition"></div>
                             </button>
                         </div>
@@ -381,17 +432,17 @@
                 this.mirrorEnabled = true;
                 this.templates = [];
                 this.slots = [];
-                
+
                 this.init();
             }
-            
+
             init() {
                 this.loadDefaultTemplates();
                 this.initCamera();
                 this.setupKeyboardShortcuts();
                 this.loadSavedTemplates();
             }
-            
+
             loadDefaultTemplates() {
                 // Template 1: Classic 3-Photo Strip (Vertical)
                 this.templates = [
@@ -400,9 +451,9 @@
                         name: 'Classic 3-Photo Strip',
                         frame: this.generateFrameData('classic3'),
                         slots: [
-                            {x: 50, y: 50, w: 300, h: 200},
-                            {x: 50, y: 280, w: 300, h: 200},
-                            {x: 50, y: 510, w: 300, h: 200}
+                            { x: 50, y: 50, w: 300, h: 200 },
+                            { x: 50, y: 280, w: 300, h: 200 },
+                            { x: 50, y: 510, w: 300, h: 200 }
                         ],
                         width: 400,
                         height: 800
@@ -412,10 +463,10 @@
                         name: '4-Photo Grid',
                         frame: this.generateFrameData('classic4'),
                         slots: [
-                            {x: 30, y: 30, w: 170, h: 170},
-                            {x: 220, y: 30, w: 170, h: 170},
-                            {x: 30, y: 220, w: 170, h: 170},
-                            {x: 220, y: 220, w: 170, h: 170}
+                            { x: 30, y: 30, w: 170, h: 170 },
+                            { x: 220, y: 30, w: 170, h: 170 },
+                            { x: 30, y: 220, w: 170, h: 170 },
+                            { x: 220, y: 220, w: 170, h: 170 }
                         ],
                         width: 420,
                         height: 420
@@ -425,21 +476,21 @@
                         name: 'Single Photo with Border',
                         frame: this.generateFrameData('single'),
                         slots: [
-                            {x: 50, y: 50, w: 300, h: 400}
+                            { x: 50, y: 50, w: 300, h: 400 }
                         ],
                         width: 400,
                         height: 500
                     }
                 ];
-                
+
                 this.selectTemplate(this.templates[0]);
             }
-            
+
             generateFrameData(type) {
                 // Generate SVG frame data for demo
                 const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
                 const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                
+
                 let svg = '';
                 if (type === 'classic3') {
                     svg = `<svg width="400" height="800" xmlns="http://www.w3.org/2000/svg">
@@ -458,45 +509,45 @@
                         <rect x="20" y="20" width="360" height="460" fill="none" stroke="${randomColor}" stroke-width="8" rx="20"/>
                     </svg>`;
                 }
-                
+
                 return 'data:image/svg+xml;base64,' + btoa(svg);
             }
-            
+
             async initCamera() {
                 try {
-                    this.stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { 
+                    this.stream = await navigator.mediaDevices.getUserMedia({
+                        video: {
                             width: { ideal: 1280 },
                             height: { ideal: 720 },
                             facingMode: 'user'
                         },
-                        audio: false 
+                        audio: false
                     });
-                    
+
                     const video = document.getElementById('camera');
                     video.srcObject = this.stream;
-                    
+
                     // Wait for video to be ready
                     video.onloadedmetadata = () => {
                         this.updateSlotMarkers();
                     };
-                    
+
                 } catch (err) {
                     console.error('Camera error:', err);
                     alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
                 }
             }
-            
+
             selectTemplate(template) {
                 this.currentTemplate = template;
                 this.capturedPhotos = [];
                 this.updateUI();
                 this.updateSlotMarkers();
-                
+
                 document.getElementById('templateName').textContent = template.name;
                 document.getElementById('liveFrame').src = template.frame;
                 document.getElementById('liveFrame').classList.remove('hidden');
-                
+
                 // Update slot indicators
                 const indicators = document.getElementById('slotIndicators');
                 indicators.innerHTML = template.slots.map((_, i) => `
@@ -505,17 +556,17 @@
                     </div>
                 `).join('');
             }
-            
+
             updateSlotMarkers() {
                 const container = document.getElementById('slotMarkers');
                 if (!this.currentTemplate) return;
-                
+
                 // Scale slots to preview container
                 const video = document.getElementById('camera');
                 const containerRect = video.getBoundingClientRect();
                 const scaleX = containerRect.width / this.currentTemplate.width;
                 const scaleY = containerRect.height / this.currentTemplate.height;
-                
+
                 container.innerHTML = this.currentTemplate.slots.map((slot, i) => `
                     <div class="slot-marker ${i === this.capturedPhotos.length ? 'active' : ''}" 
                          style="left: ${slot.x * scaleX}px; top: ${slot.y * scaleY}px; 
@@ -526,45 +577,45 @@
                     </div>
                 `).join('');
             }
-            
+
             async startCapture() {
                 if (this.isCapturing) return;
                 if (this.capturedPhotos.length >= this.photoCount) {
                     this.resetSession();
                     return;
                 }
-                
+
                 this.isCapturing = true;
                 document.getElementById('captureBtn').disabled = true;
                 document.getElementById('captureProgress').classList.remove('hidden');
-                
+
                 const remainingPhotos = this.photoCount - this.capturedPhotos.length;
-                
+
                 for (let i = 0; i < remainingPhotos; i++) {
                     await this.captureWithCountdown();
                 }
-                
+
                 this.isCapturing = false;
                 document.getElementById('captureBtn').disabled = false;
                 document.getElementById('captureProgress').classList.add('hidden');
-                
+
                 // Auto composite after all photos captured
                 if (this.capturedPhotos.length === this.photoCount) {
                     setTimeout(() => this.compositePhotos(), 500);
                 }
             }
-            
+
             async captureWithCountdown() {
                 const overlay = document.getElementById('countdownOverlay');
                 const numberEl = document.getElementById('countdownNumber');
                 const currentEl = document.getElementById('currentPhoto');
                 const statusEl = document.getElementById('captureStatus');
                 const progressBar = document.getElementById('progressBar');
-                
+
                 const photoIndex = this.capturedPhotos.length + 1;
                 currentEl.textContent = photoIndex;
                 statusEl.textContent = 'Bersiap...';
-                
+
                 // Countdown
                 overlay.classList.remove('hidden');
                 for (let i = this.countdownDuration; i > 0; i--) {
@@ -573,55 +624,55 @@
                     void numberEl.offsetWidth; // Trigger reflow
                     numberEl.classList.add('countdown-number');
                     statusEl.textContent = `Foto ${photoIndex} dalam ${i}...`;
-                    
+
                     const progress = ((this.countdownDuration - i + 1) / this.countdownDuration) * 100;
                     progressBar.style.width = `${progress}%`;
-                    
+
                     await this.sleep(1000);
                 }
-                
+
                 overlay.classList.add('hidden');
-                
+
                 // Capture
                 this.takePhoto();
                 statusEl.textContent = 'Tersimpan!';
                 await this.sleep(500);
             }
-            
+
             takePhoto() {
                 const video = document.getElementById('camera');
                 const canvas = document.getElementById('processCanvas');
                 const ctx = canvas.getContext('2d');
-                
+
                 // Set canvas size to match video
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                
+
                 // Draw video frame
                 ctx.translate(canvas.width, 0);
                 ctx.scale(-1, 1); // Mirror
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
-                
+
                 // Get image data
                 const imageData = canvas.toDataURL('image/jpeg', 0.95);
                 this.capturedPhotos.push(imageData);
-                
+
                 // Flash effect
                 const flash = document.getElementById('flash');
                 flash.classList.remove('flash-overlay');
                 void flash.offsetWidth;
                 flash.classList.add('flash-overlay');
-                
+
                 // Update UI
                 this.updatePhotoStrip();
                 this.updateSlotMarkers();
                 this.updateSlotIndicators();
             }
-            
+
             updatePhotoStrip() {
                 const container = document.getElementById('photoStrip');
-                
+
                 if (this.capturedPhotos.length === 0) {
                     container.innerHTML = `
                         <div class="text-center text-gray-400 py-8 text-sm">
@@ -630,7 +681,7 @@
                     `;
                     return;
                 }
-                
+
                 container.innerHTML = this.capturedPhotos.map((photo, i) => `
                     <div class="captured-thumb flex items-center gap-3 bg-white/5 rounded-lg p-2">
                         <img src="${photo}" class="w-16 h-16 object-cover rounded-lg">
@@ -644,7 +695,7 @@
                     </div>
                 `).join('');
             }
-            
+
             updateSlotIndicators() {
                 const indicators = document.querySelectorAll('.slot-indicator');
                 indicators.forEach((ind, i) => {
@@ -656,12 +707,12 @@
                     }
                 });
             }
-            
+
             removePhoto(index) {
                 this.capturedPhotos.splice(index, 1);
                 this.updatePhotoStrip();
                 this.updateSlotMarkers();
-                
+
                 // Regenerate slot indicators
                 const indicators = document.getElementById('slotIndicators');
                 indicators.innerHTML = this.currentTemplate.slots.map((_, i) => `
@@ -670,91 +721,91 @@
                     </div>
                 `).join('');
                 this.updateSlotIndicators();
-                
+
                 document.getElementById('resultPanel').classList.add('hidden');
             }
-            
+
             compositePhotos() {
                 if (!this.currentTemplate || this.capturedPhotos.length === 0) return;
-                
+
                 const canvas = document.getElementById('compositeCanvas');
                 const ctx = canvas.getContext('2d');
                 const template = this.currentTemplate;
-                
+
                 // Set canvas size to template size
                 canvas.width = template.width;
                 canvas.height = template.height;
-                
+
                 // Fill background
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Load and place each photo in its slot
                 const promises = this.capturedPhotos.map((photoData, i) => {
                     if (i >= template.slots.length) return Promise.resolve();
-                    
+
                     return new Promise((resolve) => {
                         const img = new Image();
                         img.onload = () => {
                             const slot = template.slots[i];
-                            
+
                             // Create clipping path for rounded corners
                             ctx.save();
                             ctx.beginPath();
                             ctx.roundRect(slot.x, slot.y, slot.w, slot.h, 10);
                             ctx.clip();
-                            
+
                             // Calculate scaling to fill slot (cover mode)
                             const scale = Math.max(slot.w / img.width, slot.h / img.height);
                             const scaledW = img.width * scale;
                             const scaledH = img.height * scale;
                             const offsetX = slot.x + (slot.w - scaledW) / 2;
                             const offsetY = slot.y + (slot.h - scaledH) / 2;
-                            
+
                             ctx.drawImage(img, offsetX, offsetY, scaledW, scaledH);
                             ctx.restore();
-                            
+
                             // Draw slot border
                             ctx.strokeStyle = 'rgba(0,0,0,0.1)';
                             ctx.lineWidth = 2;
                             ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
-                            
+
                             resolve();
                         };
                         img.src = photoData;
                     });
                 });
-                
+
                 Promise.all(promises).then(() => {
                     // Draw frame overlay
                     const frameImg = new Image();
                     frameImg.onload = () => {
                         ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
-                        
+
                         // Show result
                         this.showResult();
                     };
                     frameImg.src = template.frame;
                 });
             }
-            
+
             showResult() {
                 const canvas = document.getElementById('compositeCanvas');
                 const finalCanvas = document.getElementById('finalCanvas');
-                
+
                 // Scale down for display
                 const maxWidth = 400;
                 const scale = Math.min(1, maxWidth / canvas.width);
                 finalCanvas.width = canvas.width * scale;
                 finalCanvas.height = canvas.height * scale;
-                
+
                 const ctx = finalCanvas.getContext('2d');
                 ctx.drawImage(canvas, 0, 0, finalCanvas.width, finalCanvas.height);
-                
+
                 document.getElementById('resultPanel').classList.remove('hidden');
                 document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth' });
             }
-            
+
             downloadResult() {
                 const canvas = document.getElementById('compositeCanvas');
                 const link = document.createElement('a');
@@ -762,7 +813,7 @@
                 link.href = canvas.toDataURL('image/jpeg', 0.95);
                 link.click();
             }
-            
+
             printResult() {
                 const canvas = document.getElementById('compositeCanvas');
                 const printWindow = window.open('', '_blank');
@@ -781,7 +832,7 @@
                     </html>
                 `);
             }
-            
+
             shareResult() {
                 const canvas = document.getElementById('compositeCanvas');
                 canvas.toBlob(async (blob) => {
@@ -803,7 +854,7 @@
                     }
                 });
             }
-            
+
             resetSession() {
                 this.capturedPhotos = [];
                 this.isCapturing = false;
@@ -812,7 +863,7 @@
                 document.getElementById('resultPanel').classList.add('hidden');
                 this.updatePhotoStrip();
                 this.updateSlotMarkers();
-                
+
                 // Reset indicators
                 const indicators = document.getElementById('slotIndicators');
                 if (this.currentTemplate) {
@@ -823,12 +874,12 @@
                     `).join('');
                 }
             }
-            
+
             // Template Manager
             showTemplateManager() {
                 const modal = document.getElementById('templateModal');
                 const grid = document.getElementById('templateGrid');
-                
+
                 grid.innerHTML = this.templates.map(t => `
                     <div class="template-card glass-panel rounded-xl p-4 ${this.currentTemplate?.id === t.id ? 'active' : ''}" 
                          onclick="app.selectTemplateFromModal('${t.id}')">
@@ -842,10 +893,10 @@
                         <p class="text-xs text-gray-400 mt-1">${t.slots.length} slots</p>
                     </div>
                 `).join('');
-                
+
                 modal.classList.remove('hidden');
             }
-            
+
             selectTemplateFromModal(id) {
                 const template = this.templates.find(t => t.id === id);
                 if (template) {
@@ -854,94 +905,94 @@
                     this.closeTemplateModal();
                 }
             }
-            
+
             closeTemplateModal() {
                 document.getElementById('templateModal').classList.add('hidden');
             }
-            
+
             // Template Editor
             editCurrentTemplate() {
                 if (!this.currentTemplate) return;
                 this.openEditor(this.currentTemplate);
             }
-            
+
             openEditor(template) {
                 this.editingTemplate = JSON.parse(JSON.stringify(template));
                 document.getElementById('editorFrame').src = template.frame;
                 document.getElementById('editorModal').classList.remove('hidden');
                 this.initEditorCanvas();
             }
-            
+
             initEditorCanvas() {
                 const canvas = document.getElementById('editorCanvas');
                 const container = document.getElementById('editorContainer');
-                
+
                 // Set canvas size to match container
                 canvas.width = container.offsetWidth;
                 canvas.height = container.offsetHeight;
-                
+
                 this.drawEditorSlots();
                 this.setupEditorEvents();
             }
-            
+
             drawEditorSlots() {
                 const canvas = document.getElementById('editorCanvas');
                 const ctx = canvas.getContext('2d');
-                
+
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
+
                 // Calculate scale to fit template in canvas
                 const img = document.getElementById('editorFrame');
                 const scaleX = canvas.width / this.editingTemplate.width;
                 const scaleY = canvas.height / this.editingTemplate.height;
                 const scale = Math.min(scaleX, scaleY);
-                
+
                 this.editorScale = scale;
                 this.editorOffsetX = (canvas.width - this.editingTemplate.width * scale) / 2;
                 this.editorOffsetY = (canvas.height - this.editingTemplate.height * scale) / 2;
-                
+
                 // Draw slots
                 this.editingTemplate.slots.forEach((slot, i) => {
                     const x = this.editorOffsetX + slot.x * scale;
                     const y = this.editorOffsetY + slot.y * scale;
                     const w = slot.w * scale;
                     const h = slot.h * scale;
-                    
+
                     ctx.strokeStyle = i === this.selectedSlotIndex ? '#10b981' : '#3b82f6';
                     ctx.lineWidth = 3;
                     ctx.setLineDash([5, 5]);
                     ctx.strokeRect(x, y, w, h);
-                    
+
                     ctx.fillStyle = i === this.selectedSlotIndex ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)';
                     ctx.fillRect(x, y, w, h);
-                    
+
                     ctx.fillStyle = '#fff';
                     ctx.font = 'bold 16px Arial';
                     ctx.textAlign = 'center';
-                    ctx.fillText(i + 1, x + w/2, y + h/2);
+                    ctx.fillText(i + 1, x + w / 2, y + h / 2);
                 });
-                
+
                 ctx.setLineDash([]);
             }
-            
+
             setupEditorEvents() {
                 const canvas = document.getElementById('editorCanvas');
                 let isDrawing = false;
                 let startX, startY;
-                
+
                 canvas.onmousedown = (e) => {
                     const rect = canvas.getBoundingClientRect();
                     startX = e.clientX - rect.left;
                     startY = e.clientY - rect.top;
                     isDrawing = true;
                 };
-                
+
                 canvas.onmousemove = (e) => {
                     if (!isDrawing) return;
                     const rect = canvas.getBoundingClientRect();
                     const currentX = e.clientX - rect.left;
                     const currentY = e.clientY - rect.top;
-                    
+
                     this.drawEditorSlots();
                     const ctx = canvas.getContext('2d');
                     ctx.strokeStyle = '#10b981';
@@ -949,26 +1000,26 @@
                     ctx.setLineDash([5, 5]);
                     ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
                 };
-                
+
                 canvas.onmouseup = (e) => {
                     if (!isDrawing) return;
                     isDrawing = false;
-                    
+
                     const rect = canvas.getBoundingClientRect();
                     const endX = e.clientX - rect.left;
                     const endY = e.clientY - rect.top;
-                    
+
                     const x = Math.min(startX, endX);
                     const y = Math.min(startY, endY);
                     const w = Math.abs(endX - startX);
                     const h = Math.abs(endY - startY);
-                    
+
                     // Convert to template coordinates
                     const templateX = (x - this.editorOffsetX) / this.editorScale;
                     const templateY = (y - this.editorOffsetY) / this.editorScale;
                     const templateW = w / this.editorScale;
                     const templateH = h / this.editorScale;
-                    
+
                     if (templateW > 20 && templateH > 20) {
                         this.editingTemplate.slots.push({
                             x: Math.max(0, templateX),
@@ -980,7 +1031,7 @@
                     }
                 };
             }
-            
+
             addSlot() {
                 // Add default slot in center
                 this.editingTemplate.slots.push({
@@ -991,30 +1042,30 @@
                 });
                 this.drawEditorSlots();
             }
-            
+
             clearSlots() {
                 this.editingTemplate.slots = [];
                 this.drawEditorSlots();
             }
-            
+
             closeEditor() {
                 document.getElementById('editorModal').classList.add('hidden');
             }
-            
+
             saveTemplate() {
                 // Update current template or create new
                 if (this.currentTemplate && this.currentTemplate.id === this.editingTemplate.id) {
                     this.currentTemplate.slots = this.editingTemplate.slots;
                 }
-                
+
                 // Save to localStorage
                 this.saveTemplatesToStorage();
-                
+
                 this.closeEditor();
                 this.updateSlotMarkers();
                 alert('Template disimpan!');
             }
-            
+
             // Settings
             updatePhotoCount(val) {
                 this.photoCount = parseInt(val);
@@ -1022,17 +1073,17 @@
                 document.getElementById('totalPhotos').textContent = val;
                 this.resetSession();
             }
-            
+
             updateCountdown(val) {
                 this.countdownDuration = parseInt(val);
                 document.getElementById('countdownDisplay').textContent = val;
             }
-            
+
             toggleMirror() {
                 this.mirrorEnabled = !this.mirrorEnabled;
                 const video = document.getElementById('camera');
                 const btn = document.getElementById('mirrorBtn');
-                
+
                 if (this.mirrorEnabled) {
                     video.classList.add('live-preview');
                     btn.classList.add('bg-green-500');
@@ -1047,18 +1098,18 @@
                     btn.querySelector('div').style.transform = 'translateX(-24px)';
                 }
             }
-            
+
             // Utilities
             sleep(ms) {
                 return new Promise(resolve => setTimeout(resolve, ms));
             }
-            
+
             toggleCamera() {
                 // Toggle between front/back camera
                 // Implementation depends on device capabilities
                 this.initCamera();
             }
-            
+
             toggleFullscreen() {
                 if (!document.fullscreenElement) {
                     document.documentElement.requestFullscreen();
@@ -1066,7 +1117,7 @@
                     document.exitFullscreen();
                 }
             }
-            
+
             setupKeyboardShortcuts() {
                 document.addEventListener('keydown', (e) => {
                     if (e.code === 'Space' && !this.isCapturing) {
@@ -1079,12 +1130,12 @@
                     }
                 });
             }
-            
+
             // Storage
             saveTemplatesToStorage() {
                 localStorage.setItem('photobooth_templates', JSON.stringify(this.templates));
             }
-            
+
             loadSavedTemplates() {
                 const saved = localStorage.getItem('photobooth_templates');
                 if (saved) {
@@ -1096,20 +1147,20 @@
                     }
                 }
             }
-            
+
             updateUI() {
                 document.getElementById('totalPhotos').textContent = this.photoCount;
             }
         }
-        
+
         // Initialize app
         const app = new PhotoboothApp();
-        
+
         // Handle file upload
         document.getElementById('frameUpload').addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
+
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
@@ -1122,7 +1173,7 @@
                         width: img.width,
                         height: img.height
                     };
-                    
+
                     app.templates.push(newTemplate);
                     app.selectTemplate(newTemplate);
                     app.openEditor(newTemplate);
@@ -1134,4 +1185,5 @@
         });
     </script>
 </body>
+
 </html>
