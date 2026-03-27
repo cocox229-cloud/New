@@ -3,982 +3,593 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>📸 Web Photobooth</title>
+    <title>LumaBooth Style Photobooth</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            color: #fff;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5rem;
-            text-shadow: 0 0 20px rgba(233, 69, 96, 0.5);
-            animation: glow 2s ease-in-out infinite alternate;
-        }
-
-        @keyframes glow {
-            from { text-shadow: 0 0 20px rgba(233, 69, 96, 0.5); }
-            to { text-shadow: 0 0 30px rgba(233, 69, 96, 0.8), 0 0 40px rgba(233, 69, 96, 0.6); }
-        }
-
-        /* Screen Management */
-        .screen {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Template Selection */
-        .template-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            margin-top: 30px;
-        }
-
-        .template-card {
+        
+        .glass-panel {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 20px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            position: relative;
-            overflow: hidden;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
         }
-
-        .template-card:hover {
-            transform: translateY(-10px);
-            border-color: #e94560;
-            box-shadow: 0 20px 40px rgba(233, 69, 96, 0.3);
+        
+        .countdown-number {
+            animation: pulse-scale 1s ease-in-out;
+            text-shadow: 0 0 40px rgba(255,255,255,0.8);
         }
-
-        .template-card.selected {
-            border-color: #e94560;
-            background: rgba(233, 69, 96, 0.2);
+        
+        @keyframes pulse-scale {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
         }
-
-        .template-preview {
-            width: 100%;
-            height: 250px;
-            background: #000;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-            position: relative;
-            overflow: hidden;
+        
+        .flash-overlay {
+            animation: flash 0.3s ease-out;
         }
-
-        .template-preview img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .template-info h3 {
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-            color: #e94560;
-        }
-
-        .template-info p {
-            font-size: 0.9rem;
-            color: #aaa;
-        }
-
-        .frame-count-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #e94560;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
-        /* Upload Section */
-        .upload-section {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 40px;
-            text-align: center;
-            margin-top: 30px;
-            border: 2px dashed rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .upload-section.dragover {
-            background: rgba(233, 69, 96, 0.1);
-            border-color: #e94560;
-        }
-
-        .upload-btn {
-            background: #e94560;
-            color: white;
-            padding: 15px 40px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-        }
-
-        .upload-btn:hover {
-            background: #ff6b6b;
-            transform: scale(1.05);
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        /* Camera Section */
-        .camera-container {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-            background: #000;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        #video {
-            width: 100%;
-            height: auto;
-            display: block;
-            transform: scaleX(-1); /* Mirror effect */
-        }
-
-        .camera-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 20px;
-        }
-
-        .countdown-display {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 8rem;
-            font-weight: bold;
-            color: #e94560;
-            text-shadow: 0 0 30px rgba(233, 69, 96, 0.8);
-            display: none;
-            animation: pulse 1s ease-in-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.2); }
-        }
-
-        .photo-indicator {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .photo-dot {
-            width: 15px;
-            height: 15px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-
-        .photo-dot.active {
-            background: #e94560;
-            box-shadow: 0 0 10px #e94560;
-        }
-
-        .photo-dot.captured {
-            background: #4ecca3;
-        }
-
-        /* Controls */
-        .controls {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 30px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: #e94560;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #ff6b6b;
-            transform: scale(1.05);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* Settings Panel */
-        .settings-panel {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 20px;
-        }
-
-        .setting-group {
-            margin-bottom: 25px;
-        }
-
-        .setting-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #e94560;
-        }
-
-        .setting-options {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .option-btn {
-            padding: 10px 25px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            background: transparent;
-            color: white;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .option-btn:hover {
-            border-color: #e94560;
-            color: #e94560;
-        }
-
-        .option-btn.selected {
-            background: #e94560;
-            border-color: #e94560;
-            color: white;
-        }
-
-        /* Preview Section */
-        .preview-container {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-        }
-
-        #finalCanvas {
-            max-width: 100%;
-            height: auto;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Frame Position Editor */
-        .frame-editor {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .frame-editor.active {
-            display: block;
-        }
-
-        .slot-config {
-            display: grid;
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .slot-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .slot-item label {
-            min-width: 80px;
-            font-weight: 600;
-        }
-
-        .slot-item input {
-            width: 80px;
-            padding: 8px;
-            border: none;
-            border-radius: 5px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
-
-        /* Flash Effect */
-        .flash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: white;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        .flash.active {
-            animation: flashAnim 0.3s ease;
-        }
-
-        @keyframes flashAnim {
-            0% { opacity: 0; }
-            50% { opacity: 0.8; }
+        
+        @keyframes flash {
+            0% { opacity: 1; }
             100% { opacity: 0; }
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            h1 { font-size: 1.8rem; }
-            .template-grid { grid-template-columns: 1fr; }
-            .countdown-display { font-size: 5rem; }
-            .controls { flex-direction: column; align-items: center; }
-            .btn { width: 100%; max-width: 300px; }
+        
+        .photo-slot {
+            transition: all 0.3s ease;
+            border: 3px dashed rgba(255,255,255,0.5);
         }
-
-        /* Loading Spinner */
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            border-top-color: #e94560;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+        
+        .photo-slot:hover {
+            border-color: #fff;
+            transform: scale(1.02);
         }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        
+        .photo-slot.filled {
+            border-style: solid;
+            border-color: #10b981;
         }
-
-        .hidden {
-            display: none !important;
+        
+        .shutter-btn {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a5a);
+            box-shadow: 0 10px 30px rgba(238, 90, 90, 0.4);
+            transition: all 0.3s ease;
         }
-
-        /* Canvas for processing */
-        #processCanvas {
+        
+        .shutter-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(238, 90, 90, 0.6);
+        }
+        
+        .shutter-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .template-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .template-card.active {
+            border: 3px solid #10b981;
+            transform: scale(1.05);
+        }
+        
+        .hidden-canvas {
             display: none;
         }
-
-        /* Info badges */
-        .info-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: rgba(233, 69, 96, 0.2);
-            color: #e94560;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            margin-top: 10px;
-        }
-
-        /* Progress bar */
-        .progress-container {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-            margin-top: 20px;
+        
+        .preview-container {
+            position: relative;
             overflow: hidden;
         }
-
-        .progress-bar {
+        
+        .live-preview {
+            transform: scaleX(-1); /* Mirror effect */
+        }
+        
+        .frame-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, #e94560, #ff6b6b);
-            width: 0%;
-            transition: width 0.3s ease;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .slot-marker {
+            position: absolute;
+            border: 3px solid rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(2px);
+            transition: all 0.3s ease;
+        }
+        
+        .slot-marker.active {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .captured-thumb {
+            animation: slide-in 0.5s ease-out;
+        }
+        
+        @keyframes slide-in {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.35s;
         }
     </style>
 </head>
-<body>
-    <div class="flash" id="flash"></div>
-    
-    <div class="container">
-        <h1>📸 Web Photobooth</h1>
+<body class="min-h-screen text-white">
 
-        <!-- Screen 1: Template Selection -->
-        <div class="screen active" id="screen-template">
-            <h2 style="text-align: center; margin-bottom: 10px;">Pilih Template Frame</h2>
-            <p style="text-align: center; color: #aaa; margin-bottom: 30px;">
-                Pilih salah satu desain frame yang tersedia
-            </p>
-            
-            <div class="template-grid">
-                <!-- Template 1: Single Frame (Vintage) -->
-                <div class="template-card" onclick="selectTemplate(1)" data-frames="1">
-                    <div class="frame-count-badge">1 Frame</div>
-                    <div class="template-preview">
-                        <img src="/mnt/kimi/upload/20260325_224420(1).png" alt="Vintage Frame" id="preview-template-1">
-                    </div>
-                    <div class="template-info">
-                        <h3>Vintage Memories</h3>
-                        <p>Frame single dengan aesthetic scrapbook vintage, dilengkapi bunga kering dan teks "don't you remember?"</p>
-                        <div class="info-badge">📷 1 Foto</div>
-                    </div>
+    <!-- Header -->
+    <header class="glass-panel fixed top-0 w-full z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-pink-500 to-violet-600 rounded-xl flex items-center justify-center text-xl font-bold">
+                    📸
                 </div>
-
-                <!-- Template 2: Triple Frame (Love You) -->
-                <div class="template-card" onclick="selectTemplate(2)" data-frames="3">
-                    <div class="frame-count-badge">3 Frames</div>
-                    <div class="template-preview">
-                        <img src="/mnt/kimi/upload/20260325_225121.png" alt="Triple Frame" id="preview-template-2">
-                    </div>
-                    <div class="template-info">
-                        <h3>Love You Strip</h3>
-                        <p>Photo strip vertikal dengan 3 slot foto dan teks romantis "love ♥ you" di bagian bawah</p>
-                        <div class="info-badge">📷 3 Foto</div>
-                    </div>
-                </div>
-
-                <!-- Template 3: Collage Frame (4 Polaroids) -->
-                <div class="template-card" onclick="selectTemplate(3)" data-frames="4">
-                    <div class="frame-count-badge">4 Frames</div>
-                    <div class="template-preview">
-                        <img src="/mnt/kimi/upload/20260325_225254(1).png" alt="Collage Frame" id="preview-template-3">
-                    </div>
-                    <div class="template-info">
-                        <h3>Polaroid Collage</h3>
-                        <p>4 polaroid yang ditata artistic dengan masking tape, cocok untuk koleksi foto bersama teman</p>
-                        <div class="info-badge">📷 4 Foto</div>
-                    </div>
-                </div>
+                <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-300 to-violet-300">
+                    LumaBooth Clone
+                </h1>
             </div>
-
-            <div class="controls" style="margin-top: 40px;">
-                <button class="btn btn-primary" id="btn-next-upload" onclick="goToUpload()" disabled>
-                    Lanjutkan →
+            <div class="flex gap-4">
+                <button onclick="app.showTemplateManager()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
+                    🎨 Template Manager
+                </button>
+                <button onclick="app.resetSession()" class="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition">
+                    🔄 Reset
                 </button>
             </div>
         </div>
+    </header>
 
-        <!-- Screen 2: Upload Frame -->
-        <div class="screen" id="screen-upload">
-            <h2 style="text-align: center; margin-bottom: 10px;">Upload Frame Template</h2>
-            <p style="text-align: center; color: #aaa; margin-bottom: 30px;">
-                Upload file PNG transparan sesuai template yang dipilih
-            </p>
-
-            <div class="upload-section" id="dropZone">
-                <div style="font-size: 4rem; margin-bottom: 20px;">📁</div>
-                <h3>Drag & Drop file frame di sini</h3>
-                <p style="color: #aaa; margin: 15px 0;">atau</p>
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    Pilih File
-                </button>
-                <input type="file" id="fileInput" class="file-input" accept="image/png,image/jpeg,image/jpg" onchange="handleFileSelect(event)">
-                <p style="color: #888; margin-top: 20px; font-size: 0.9rem;">
-                    Format yang diterima: PNG (dengan transparan), JPG, JPEG<br>
-                    Ukuran maksimal: 10MB
-                </p>
-            </div>
-
-            <div class="settings-panel" id="uploaded-info" style="display: none;">
-                <h3 style="color: #e94560; margin-bottom: 15px;">✅ File Berhasil Diupload</h3>
-                <div id="file-details"></div>
+    <!-- Main Content -->
+    <main class="pt-24 pb-12 px-6 max-w-7xl mx-auto">
+        
+        <!-- Template Selection Modal -->
+        <div id="templateModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+            <div class="glass-panel rounded-2xl p-8 max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <h2 class="text-3xl font-bold mb-6 text-center">Pilih Template Frame</h2>
                 
-                <div class="frame-editor active" id="frame-editor">
-                    <h4 style="margin-bottom: 15px;">Konfigurasi Posisi Slot Foto</h4>
-                    <p style="color: #aaa; font-size: 0.9rem; margin-bottom: 15px;">
-                        Sesuaikan posisi dan ukuran setiap slot foto dalam frame (dalam persen %)
-                    </p>
-                    <div class="slot-config" id="slot-config">
-                        <!-- Generated dynamically -->
-                    </div>
+                <!-- Template Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" id="templateGrid">
+                    <!-- Generated by JS -->
                 </div>
-            </div>
-
-            <div class="controls">
-                <button class="btn btn-secondary" onclick="goBack('screen-template')">← Kembali</button>
-                <button class="btn btn-primary" id="btn-next-camera" onclick="goToCamera()" disabled>
-                    Lanjut ke Kamera →
-                </button>
-            </div>
-        </div>
-
-        <!-- Screen 3: Camera & Settings -->
-        <div class="screen" id="screen-camera">
-            <h2 style="text-align: center; margin-bottom: 20px;">Sesuaikan Pengaturan</h2>
-
-            <div class="settings-panel">
-                <div class="setting-group">
-                    <label>⏱️ Countdown Timer</label>
-                    <div class="setting-options">
-                        <button class="option-btn selected" onclick="setCountdown(3, this)">3 Detik</button>
-                        <button class="option-btn" onclick="setCountdown(6, this)">6 Detik</button>
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label>📐 Output Size</label>
-                    <div class="setting-options">
-                        <button class="option-btn selected" onclick="setOutputSize('digital', this)">Digital (1080px)</button>
-                        <button class="option-btn" onclick="setOutputSize('print', this)">Print (1800px)</button>
-                    </div>
-                </div>
-
-                <div class="setting-group">
-                    <label>📷 Kamera</label>
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <select id="cameraSelect" style="padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.3);">
-                            <option value="">Kamera Default</option>
-                        </select>
-                        <button class="btn btn-secondary" onclick="refreshCameras()" style="padding: 10px 20px;">🔄 Refresh</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="camera-container" style="margin-top: 30px;">
-                <video id="video" autoplay playsinline></video>
-                <div class="camera-overlay">
-                    <div class="photo-indicator" id="photo-indicator">
-                        <!-- Generated dynamically -->
-                    </div>
-                </div>
-                <div class="countdown-display" id="countdown">3</div>
-            </div>
-
-            <div class="controls">
-                <button class="btn btn-secondary" onclick="goBack('screen-upload')">← Kembali</button>
-                <button class="btn btn-primary" id="btn-start" onclick="startPhotoSession()">
-                    📸 Mulai Foto
-                </button>
-            </div>
-        </div>
-
-        <!-- Screen 4: Processing -->
-        <div class="screen" id="screen-processing">
-            <div style="text-align: center; padding: 60px 20px;">
-                <div class="spinner"></div>
-                <h2 style="margin-top: 30px;">Memproses Foto...</h2>
-                <p style="color: #aaa; margin-top: 15px;">Menggabungkan foto dengan frame template</p>
-                <div class="progress-container">
-                    <div class="progress-bar" id="progress-bar"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Screen 5: Preview & Download -->
-        <div class="screen" id="screen-preview">
-            <h2 style="text-align: center; margin-bottom: 20px;">🎉 Hasil Foto Anda</h2>
-            
-            <div class="preview-container">
-                <canvas id="finalCanvas"></canvas>
                 
-                <div style="margin-top: 30px; display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="downloadResult('png')">
-                        💾 Download PNG
-                    </button>
-                    <button class="btn btn-secondary" onclick="downloadResult('jpg')">
-                        💾 Download JPG
-                    </button>
-                    <button class="btn btn-secondary" onclick="shareResult()">
-                        📤 Share
+                <!-- Custom Template Upload -->
+                <div class="border-t border-white/20 pt-6">
+                    <h3 class="text-xl font-semibold mb-4">Upload Template Custom</h3>
+                    <div class="flex gap-4 items-center">
+                        <input type="file" id="frameUpload" accept="image/png,image/jpeg" class="hidden">
+                        <button onclick="document.getElementById('frameUpload').click()" class="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 transition">
+                            📁 Upload Frame PNG
+                        </button>
+                        <span class="text-sm text-gray-300">Format: PNG dengan area transparan untuk foto</span>
+                    </div>
+                </div>
+                
+                <div class="mt-8 text-center">
+                    <button onclick="app.closeTemplateModal()" class="px-8 py-3 rounded-xl bg-white/20 hover:bg-white/30 transition">
+                        Tutup
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="controls">
-                <button class="btn btn-secondary" onclick="retakePhotos()">🔄 Ulangi Foto</button>
-                <button class="btn btn-secondary" onclick="goBack('screen-template')">🏠 Menu Awal</button>
+        <!-- Editor Modal untuk atur rectangle -->
+        <div id="editorModal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden">
+            <div class="glass-panel rounded-2xl p-6 max-w-5xl w-full mx-4">
+                <h2 class="text-2xl font-bold mb-4">Atur Posisi Foto (Slots)</h2>
+                <p class="text-sm text-gray-300 mb-4">Klik dan drag untuk membuat area foto. Tekan Delete untuk menghapus slot terakhir.</p>
+                
+                <div class="relative bg-gray-800 rounded-xl overflow-hidden mb-4" id="editorContainer" style="height: 600px;">
+                    <img id="editorFrame" class="w-full h-full object-contain" src="" alt="Frame">
+                    <canvas id="editorCanvas" class="absolute inset-0 w-full h-full cursor-crosshair"></canvas>
+                </div>
+                
+                <div class="flex justify-between items-center">
+                    <div class="flex gap-2">
+                        <button onclick="app.clearSlots()" class="px-4 py-2 rounded-lg bg-red-500/20 hover:bg-red-500/30 text-red-300">
+                            Clear All
+                        </button>
+                        <button onclick="app.addSlot()" class="px-4 py-2 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300">
+                            + Add Slot
+                        </button>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="app.closeEditor()" class="px-6 py-2 rounded-lg bg-white/10 hover:bg-white/20">
+                            Batal
+                        </button>
+                        <button onclick="app.saveTemplate()" class="px-6 py-2 rounded-lg bg-green-500 hover:bg-green-600">
+                            Simpan Template
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Hidden canvas for processing -->
-    <canvas id="processCanvas"></canvas>
+        <!-- Main Photobooth Interface -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Camera & Preview -->
+            <div class="lg:col-span-7 space-y-6">
+                
+                <!-- Camera View -->
+                <div class="glass-panel rounded-2xl p-4 relative overflow-hidden">
+                    <div class="preview-container rounded-xl bg-black aspect-[4/3] relative">
+                        <video id="camera" class="live-preview w-full h-full object-cover" autoplay playsinline></video>
+                        
+                        <!-- Frame Overlay -->
+                        <img id="liveFrame" class="frame-overlay hidden" src="" alt="Frame">
+                        
+                        <!-- Slot Markers -->
+                        <div id="slotMarkers" class="absolute inset-0 pointer-events-none"></div>
+                        
+                        <!-- Countdown Overlay -->
+                        <div id="countdownOverlay" class="absolute inset-0 flex items-center justify-center bg-black/50 hidden z-20">
+                            <div id="countdownNumber" class="text-9xl font-bold countdown-number">3</div>
+                        </div>
+                        
+                        <!-- Flash Effect -->
+                        <div id="flash" class="absolute inset-0 bg-white pointer-events-none opacity-0 z-30"></div>
+                        
+                        <!-- Capture Progress -->
+                        <div id="captureProgress" class="absolute top-4 left-4 right-4 hidden z-20">
+                            <div class="flex justify-between mb-2 text-sm font-semibold">
+                                <span>Foto <span id="currentPhoto">1</span>/<span id="totalPhotos">3</span></span>
+                                <span id="captureStatus">Bersiap...</span>
+                            </div>
+                            <div class="h-2 bg-white/20 rounded-full overflow-hidden">
+                                <div id="progressBar" class="h-full bg-gradient-to-r from-pink-500 to-violet-500 transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="flex justify-center gap-4 mt-6">
+                        <button onclick="app.toggleCamera()" class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Ganti Kamera">
+                            🔄
+                        </button>
+                        
+                        <button id="captureBtn" onclick="app.startCapture()" class="shutter-btn w-20 h-20 rounded-full flex items-center justify-center text-3xl disabled:opacity-50 disabled:cursor-not-allowed">
+                            📷
+                        </button>
+                        
+                        <button onclick="app.toggleFullscreen()" class="p-4 rounded-full bg-white/10 hover:bg-white/20 transition" title="Fullscreen">
+                            ⛶
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Template Info -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold mb-1">Template Aktif</h3>
+                            <p id="templateName" class="text-gray-300 text-sm">Classic 3-Photo Strip</p>
+                        </div>
+                        <button onclick="app.editCurrentTemplate()" class="text-sm px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20">
+                            ✏️ Edit Slots
+                        </button>
+                    </div>
+                    
+                    <div class="flex gap-2 flex-wrap" id="slotIndicators">
+                        <!-- Slot indicators generated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Results & Gallery -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <!-- Live Preview Strip -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold mb-4">Preview Strip</h3>
+                    <div id="photoStrip" class="space-y-3 max-h-96 overflow-y-auto">
+                        <div class="text-center text-gray-400 py-8 text-sm">
+                            Belum ada foto. Klik tombol kamera untuk mulai!
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Final Result -->
+                <div id="resultPanel" class="glass-panel rounded-2xl p-6 hidden">
+                    <h3 class="text-lg font-semibold mb-4">Hasil Akhir</h3>
+                    <div class="relative rounded-xl overflow-hidden bg-gray-900 mb-4">
+                        <canvas id="finalCanvas" class="w-full"></canvas>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <button onclick="app.downloadResult()" class="py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 font-semibold transition">
+                            💾 Download
+                        </button>
+                        <button onclick="app.printResult()" class="py-3 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 font-semibold transition">
+                            🖨️ Print
+                        </button>
+                    </div>
+                    
+                    <button onclick="app.shareResult()" class="w-full mt-3 py-3 rounded-xl bg-white/10 hover:bg-white/20 font-semibold transition">
+                        📤 Share / QR Code
+                    </button>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="glass-panel rounded-2xl p-6">
+                    <h3 class="text-lg font-semibold mb-4">Pengaturan Cepat</h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-2">Jumlah Foto: <span id="photoCountDisplay">3</span></label>
+                            <input type="range" id="photoCount" min="1" max="6" value="3" 
+                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                   oninput="app.updatePhotoCount(this.value)">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm text-gray-300 mb-2">Countdown: <span id="countdownDisplay">3</span> detik</label>
+                            <input type="range" id="countdownDuration" min="1" max="10" value="3" 
+                                   class="w-full h-2 bg-white/20 rounded-lg appearance-none cursor-pointer"
+                                   oninput="app.updateCountdown(this.value)">
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-300">Mirror Effect</span>
+                            <button onclick="app.toggleMirror()" id="mirrorBtn" class="w-12 h-6 rounded-full bg-green-500 relative transition">
+                                <div class="absolute right-1 top-1 w-4 h-4 bg-white rounded-full transition"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Hidden Canvases for Processing -->
+    <canvas id="processCanvas" class="hidden-canvas"></canvas>
+    <canvas id="compositeCanvas" class="hidden-canvas"></canvas>
 
     <script>
-        // State Management
-        const state = {
-            selectedTemplate: null,
-            frameCount: 0,
-            uploadedFrame: null,
-            countdown: 3,
-            outputSize: 'digital',
-            photos: [],
-            currentPhotoIndex: 0,
-            isCapturing: false,
-            stream: null,
-            slotConfigs: []
-        };
-
-        // Template configurations with default slot positions
-        const templateConfigs = {
-            1: { // Vintage Single Frame
-                slots: [
-                    { x: 22, y: 15, width: 56, height: 45, rotation: 0 }
-                ]
-            },
-            2: { // Triple Love Frame
-                slots: [
-                    { x: 28, y: 8, width: 44, height: 26, rotation: 0 },
-                    { x: 28, y: 36, width: 44, height: 26, rotation: 0 },
-                    { x: 28, y: 64, width: 44, height: 26, rotation: 0 }
-                ]
-            },
-            3: { // Collage 4 Polaroids
-                slots: [
-                    { x: 12, y: 10, width: 35, height: 28, rotation: -8 },
-                    { x: 52, y: 8, width: 35, height: 28, rotation: 6 },
-                    { x: 20, y: 55, width: 35, height: 28, rotation: 5 },
-                    { x: 55, y: 52, width: 35, height: 28, rotation: -5 }
-                ]
+        class PhotoboothApp {
+            constructor() {
+                this.stream = null;
+                this.currentTemplate = null;
+                this.capturedPhotos = [];
+                this.isCapturing = false;
+                this.photoCount = 3;
+                this.countdownDuration = 3;
+                this.mirrorEnabled = true;
+                this.templates = [];
+                this.slots = [];
+                
+                this.init();
             }
-        };
-
-        // Screen Navigation
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
-        }
-
-        function goBack(screenId) {
-            showScreen(screenId);
-            if (screenId === 'screen-template') {
-                resetState();
+            
+            init() {
+                this.loadDefaultTemplates();
+                this.initCamera();
+                this.setupKeyboardShortcuts();
+                this.loadSavedTemplates();
             }
-        }
-
-        function resetState() {
-            state.photos = [];
-            state.currentPhotoIndex = 0;
-            state.isCapturing = false;
-            if (state.stream) {
-                state.stream.getTracks().forEach(track => track.stop());
-                state.stream = null;
-            }
-            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-            document.getElementById('btn-next-upload').disabled = true;
-        }
-
-        // Template Selection
-        function selectTemplate(templateId) {
-            state.selectedTemplate = templateId;
-            state.frameCount = templateConfigs[templateId].slots.length;
             
-            // Update UI
-            document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-            document.querySelector(`[onclick="selectTemplate(${templateId})"]`).classList.add('selected');
-            document.getElementById('btn-next-upload').disabled = false;
-
-            // Pre-fill slot configs
-            state.slotConfigs = JSON.parse(JSON.stringify(templateConfigs[templateId].slots));
-        }
-
-        function goToUpload() {
-            showScreen('screen-upload');
-            setupDragAndDrop();
-        }
-
-        // File Upload
-        function setupDragAndDrop() {
-            const dropZone = document.getElementById('dropZone');
-            
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('dragover');
-            });
-            
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('dragover');
-            });
-            
-            dropZone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropZone.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                if (files.length) processFile(files[0]);
-            });
-        }
-
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (file) processFile(file);
-        }
-
-        function processFile(file) {
-            if (!file.type.match(/image.*/)) {
-                alert('Mohon upload file gambar (PNG/JPG)');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    state.uploadedFrame = img;
-                    showUploadedInfo(file, img);
-                    generateSlotEditor();
-                    document.getElementById('btn-next-camera').disabled = false;
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function showUploadedInfo(file, img) {
-            document.getElementById('uploaded-info').style.display = 'block';
-            document.getElementById('file-details').innerHTML = `
-                <p><strong>Nama:</strong> ${file.name}</p>
-                <p><strong>Ukuran:</strong> ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                <p><strong>Dimensi:</strong> ${img.width} x ${img.height} px</p>
-            `;
-        }
-
-        function generateSlotEditor() {
-            const container = document.getElementById('slot-config');
-            container.innerHTML = '';
-            
-            state.slotConfigs.forEach((slot, index) => {
-                const div = document.createElement('div');
-                div.className = 'slot-item';
-                div.innerHTML = `
-                    <label>Slot ${index + 1}:</label>
-                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                        <span>X: <input type="number" value="${slot.x}" onchange="updateSlot(${index}, 'x', this.value)" min="0" max="100">%</span>
-                        <span>Y: <input type="number" value="${slot.y}" onchange="updateSlot(${index}, 'y', this.value)" min="0" max="100">%</span>
-                        <span>W: <input type="number" value="${slot.width}" onchange="updateSlot(${index}, 'width', this.value)" min="10" max="100">%</span>
-                        <span>H: <input type="number" value="${slot.height}" onchange="updateSlot(${index}, 'height', this.value)" min="10" max="100">%</span>
-                        <span>Rot: <input type="number" value="${slot.rotation}" onchange="updateSlot(${index}, 'rotation', this.value)" min="-45" max="45">°</span>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        function updateSlot(index, property, value) {
-            state.slotConfigs[index][property] = parseFloat(value);
-        }
-
-        // Camera Functions
-        async function goToCamera() {
-            showScreen('screen-camera');
-            await initCamera();
-            generatePhotoIndicator();
-        }
-
-        async function initCamera() {
-            try {
-                const constraints = {
-                    video: {
-                        facingMode: 'user',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 }
+            loadDefaultTemplates() {
+                // Template 1: Classic 3-Photo Strip (Vertical)
+                this.templates = [
+                    {
+                        id: 'classic3',
+                        name: 'Classic 3-Photo Strip',
+                        frame: this.generateFrameData('classic3'),
+                        slots: [
+                            {x: 50, y: 50, w: 300, h: 200},
+                            {x: 50, y: 280, w: 300, h: 200},
+                            {x: 50, y: 510, w: 300, h: 200}
+                        ],
+                        width: 400,
+                        height: 800
                     },
-                    audio: false
-                };
-
-                state.stream = await navigator.mediaDevices.getUserMedia(constraints);
-                const video = document.getElementById('video');
-                video.srcObject = state.stream;
-                
-                // Populate camera devices
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const cameras = devices.filter(d => d.kind === 'videoinput');
-                const select = document.getElementById('cameraSelect');
-                select.innerHTML = '<option value="">Kamera Default</option>';
-                cameras.forEach((cam, idx) => {
-                    select.innerHTML += `<option value="${cam.deviceId}">${cam.label || 'Kamera ' + (idx + 1)}</option>`;
-                });
-                
-                select.onchange = async (e) => {
-                    if (e.target.value) {
-                        const newConstraints = {
-                            video: { deviceId: { exact: e.target.value } },
-                            audio: false
-                        };
-                        state.stream.getTracks().forEach(t => t.stop());
-                        state.stream = await navigator.mediaDevices.getUserMedia(newConstraints);
-                        video.srcObject = state.stream;
+                    {
+                        id: 'classic4',
+                        name: '4-Photo Grid',
+                        frame: this.generateFrameData('classic4'),
+                        slots: [
+                            {x: 30, y: 30, w: 170, h: 170},
+                            {x: 220, y: 30, w: 170, h: 170},
+                            {x: 30, y: 220, w: 170, h: 170},
+                            {x: 220, y: 220, w: 170, h: 170}
+                        ],
+                        width: 420,
+                        height: 420
+                    },
+                    {
+                        id: 'single',
+                        name: 'Single Photo with Border',
+                        frame: this.generateFrameData('single'),
+                        slots: [
+                            {x: 50, y: 50, w: 300, h: 400}
+                        ],
+                        width: 400,
+                        height: 500
                     }
-                };
-            } catch (err) {
-                alert('Tidak dapat mengakses kamera: ' + err.message);
+                ];
+                
+                this.selectTemplate(this.templates[0]);
             }
-        }
-
-        async function refreshCameras() {
-            await initCamera();
-        }
-
-        function generatePhotoIndicator() {
-            const container = document.getElementById('photo-indicator');
-            container.innerHTML = '';
-            for (let i = 0; i < state.frameCount; i++) {
-                const dot = document.createElement('div');
-                dot.className = 'photo-dot';
-                dot.id = `dot-${i}`;
-                container.appendChild(dot);
+            
+            generateFrameData(type) {
+                // Generate SVG frame data for demo
+                const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#ffeaa7'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                let svg = '';
+                if (type === 'classic3') {
+                    svg = `<svg width="400" height="800" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="400" height="800" fill="${randomColor}" opacity="0.1"/>
+                        <rect x="20" y="20" width="360" height="760" fill="none" stroke="${randomColor}" stroke-width="8" rx="20"/>
+                        <text x="200" y="750" text-anchor="middle" fill="${randomColor}" font-size="24" font-family="Arial" font-weight="bold">PHOTOBOOTH</text>
+                    </svg>`;
+                } else if (type === 'classic4') {
+                    svg = `<svg width="420" height="420" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="420" height="420" fill="${randomColor}" opacity="0.1"/>
+                        <rect x="10" y="10" width="400" height="400" fill="none" stroke="${randomColor}" stroke-width="8" rx="20"/>
+                    </svg>`;
+                } else {
+                    svg = `<svg width="400" height="500" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="400" height="500" fill="${randomColor}" opacity="0.1"/>
+                        <rect x="20" y="20" width="360" height="460" fill="none" stroke="${randomColor}" stroke-width="8" rx="20"/>
+                    </svg>`;
+                }
+                
+                return 'data:image/svg+xml;base64,' + btoa(svg);
             }
-        }
-
-        function setCountdown(seconds, btn) {
-            state.countdown = seconds;
-            document.querySelectorAll('.setting-group .option-btn').forEach(b => {
-                if (b.textContent.includes('Detik')) b.classList.remove('selected');
-            });
-            btn.classList.add('selected');
-        }
-
-        function setOutputSize(size, btn) {
-            state.outputSize = size;
-            btn.parentElement.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-        }
-
-        // Photo Session
-        async function startPhotoSession() {
-            if (state.isCapturing) return;
-            state.isCapturing = true;
-            state.photos = [];
-            state.currentPhotoIndex = 0;
             
-            document.getElementById('btn-start').disabled = true;
-            
-            // Reset indicators
-            document.querySelectorAll('.photo-dot').forEach(d => {
-                d.classList.remove('active', 'captured');
-            });
-            
-            await captureSequence();
-        }
-
-        async function captureSequence() {
-            for (let i = 0; i < state.frameCount; i++) {
-                state.currentPhotoIndex = i;
-                
-                // Update indicator
-                document.querySelectorAll('.photo-dot').forEach((d, idx) => {
-                    d.classList.toggle('active', idx === i);
-                });
-                
-                // Countdown
-                await runCountdown();
-                
-                // Capture
-                await capturePhoto();
-                
-                // Mark as captured
-                document.getElementById(`dot-${i}`).classList.remove('active');
-                document.getElementById(`dot-${i}`).classList.add('captured');
-                
-                // Small delay between shots
-                if (i < state.frameCount - 1) {
-                    await new Promise(r => setTimeout(r, 1000));
+            async initCamera() {
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { 
+                            width: { ideal: 1280 },
+                            height: { ideal: 720 },
+                            facingMode: 'user'
+                        },
+                        audio: false 
+                    });
+                    
+                    const video = document.getElementById('camera');
+                    video.srcObject = this.stream;
+                    
+                    // Wait for video to be ready
+                    video.onloadedmetadata = () => {
+                        this.updateSlotMarkers();
+                    };
+                    
+                } catch (err) {
+                    console.error('Camera error:', err);
+                    alert('Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.');
                 }
             }
             
-            // All photos captured
-            state.isCapturing = false;
-            setTimeout(() => {
-                showScreen('screen-processing');
-                setTimeout(renderFinalImage, 500);
-            }, 500);
-        }
-
-        async function runCountdown() {
-            const display = document.getElementById('countdown');
-            display.style.display = 'block';
-            
-            for (let i = state.countdown; i > 0; i--) {
-                display.textContent = i;
-                display.style.animation = 'none';
-                setTimeout(() => display.style.animation = 'pulse 1s ease-in-out', 10);
-                await new Promise(r => setTimeout(r, 1000));
+            selectTemplate(template) {
+                this.currentTemplate = template;
+                this.capturedPhotos = [];
+                this.updateUI();
+                this.updateSlotMarkers();
+                
+                document.getElementById('templateName').textContent = template.name;
+                document.getElementById('liveFrame').src = template.frame;
+                document.getElementById('liveFrame').classList.remove('hidden');
+                
+                // Update slot indicators
+                const indicators = document.getElementById('slotIndicators');
+                indicators.innerHTML = template.slots.map((_, i) => `
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm slot-indicator" data-slot="${i}">
+                        ${i + 1}
+                    </div>
+                `).join('');
             }
             
-            display.style.display = 'none';
+            updateSlotMarkers() {
+                const container = document.getElementById('slotMarkers');
+                if (!this.currentTemplate) return;
+                
+                // Scale slots to preview container
+                const video = document.getElementById('camera');
+                const containerRect = video.getBoundingClientRect();
+                const scaleX = containerRect.width / this.currentTemplate.width;
+                const scaleY = containerRect.height / this.currentTemplate.height;
+                
+                container.innerHTML = this.currentTemplate.slots.map((slot, i) => `
+                    <div class="slot-marker ${i === this.capturedPhotos.length ? 'active' : ''}" 
+                         style="left: ${slot.x * scaleX}px; top: ${slot.y * scaleY}px; 
+                                width: ${slot.w * scaleX}px; height: ${slot.h * scaleY}px;">
+                        <span class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl opacity-50">
+                            ${i < this.capturedPhotos.length ? '✓' : (i === this.capturedPhotos.length ? '📷' : i + 1)}
+                        </span>
+                    </div>
+                `).join('');
+            }
             
-            // Flash effect
-            const flash = document.getElementById('flash');
-            flash.classList.add('active');
-            setTimeout(() => flash.classList.remove('active'), 300);
-        }
-
-        function capturePhoto() {
-            return new Promise((resolve) => {
-                const video = document.getElementById('video');
+            async startCapture() {
+                if (this.isCapturing) return;
+                if (this.capturedPhotos.length >= this.photoCount) {
+                    this.resetSession();
+                    return;
+                }
+                
+                this.isCapturing = true;
+                document.getElementById('captureBtn').disabled = true;
+                document.getElementById('captureProgress').classList.remove('hidden');
+                
+                const remainingPhotos = this.photoCount - this.capturedPhotos.length;
+                
+                for (let i = 0; i < remainingPhotos; i++) {
+                    await this.captureWithCountdown();
+                }
+                
+                this.isCapturing = false;
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('captureProgress').classList.add('hidden');
+                
+                // Auto composite after all photos captured
+                if (this.capturedPhotos.length === this.photoCount) {
+                    setTimeout(() => this.compositePhotos(), 500);
+                }
+            }
+            
+            async captureWithCountdown() {
+                const overlay = document.getElementById('countdownOverlay');
+                const numberEl = document.getElementById('countdownNumber');
+                const currentEl = document.getElementById('currentPhoto');
+                const statusEl = document.getElementById('captureStatus');
+                const progressBar = document.getElementById('progressBar');
+                
+                const photoIndex = this.capturedPhotos.length + 1;
+                currentEl.textContent = photoIndex;
+                statusEl.textContent = 'Bersiap...';
+                
+                // Countdown
+                overlay.classList.remove('hidden');
+                for (let i = this.countdownDuration; i > 0; i--) {
+                    numberEl.textContent = i;
+                    numberEl.classList.remove('countdown-number');
+                    void numberEl.offsetWidth; // Trigger reflow
+                    numberEl.classList.add('countdown-number');
+                    statusEl.textContent = `Foto ${photoIndex} dalam ${i}...`;
+                    
+                    const progress = ((this.countdownDuration - i + 1) / this.countdownDuration) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    
+                    await this.sleep(1000);
+                }
+                
+                overlay.classList.add('hidden');
+                
+                // Capture
+                this.takePhoto();
+                statusEl.textContent = 'Tersimpan!';
+                await this.sleep(500);
+            }
+            
+            takePhoto() {
+                const video = document.getElementById('camera');
                 const canvas = document.getElementById('processCanvas');
                 const ctx = canvas.getContext('2d');
                 
@@ -986,174 +597,540 @@
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 
-                // Draw video frame (mirrored back to normal for final)
+                // Draw video frame
                 ctx.translate(canvas.width, 0);
-                ctx.scale(-1, 1);
+                ctx.scale(-1, 1); // Mirror
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
                 
-                // Save photo
-                const photoData = canvas.toDataURL('image/jpeg', 0.95);
-                state.photos.push(photoData);
+                // Get image data
+                const imageData = canvas.toDataURL('image/jpeg', 0.95);
+                this.capturedPhotos.push(imageData);
                 
-                resolve();
-            });
-        }
-
-        // Rendering
-        async function renderFinalImage() {
-            const progressBar = document.getElementById('progress-bar');
-            progressBar.style.width = '0%';
-            
-            const frame = state.uploadedFrame;
-            const finalCanvas = document.getElementById('finalCanvas');
-            const ctx = finalCanvas.getContext('2d');
-            
-            // Set output size
-            const outputWidth = state.outputSize === 'print' ? 1800 : 1080;
-            const scale = outputWidth / frame.width;
-            const outputHeight = frame.height * scale;
-            
-            finalCanvas.width = outputWidth;
-            finalCanvas.height = outputHeight;
-            
-            progressBar.style.width = '30%';
-            
-            // Draw frame background
-            ctx.drawImage(frame, 0, 0, outputWidth, outputHeight);
-            
-            progressBar.style.width = '50%';
-            
-            // Draw each photo in its slot
-            for (let i = 0; i < state.photos.length; i++) {
-                await drawPhotoInSlot(ctx, state.photos[i], state.slotConfigs[i], outputWidth, outputHeight);
-                progressBar.style.width = `${50 + ((i + 1) / state.photos.length) * 40}%`;
+                // Flash effect
+                const flash = document.getElementById('flash');
+                flash.classList.remove('flash-overlay');
+                void flash.offsetWidth;
+                flash.classList.add('flash-overlay');
+                
+                // Update UI
+                this.updatePhotoStrip();
+                this.updateSlotMarkers();
+                this.updateSlotIndicators();
             }
             
-            // Redraw frame on top (as overlay)
-            ctx.drawImage(frame, 0, 0, outputWidth, outputHeight);
-            
-            progressBar.style.width = '100%';
-            
-            setTimeout(() => {
-                showScreen('screen-preview');
-            }, 500);
-        }
-
-        function drawPhotoInSlot(ctx, photoSrc, slotConfig, canvasWidth, canvasHeight) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const slotX = (slotConfig.x / 100) * canvasWidth;
-                    const slotY = (slotConfig.y / 100) * canvasHeight;
-                    const slotW = (slotConfig.width / 100) * canvasWidth;
-                    const slotH = (slotConfig.height / 100) * canvasHeight;
-                    
-                    ctx.save();
-                    
-                    // Create clipping path for slot
-                    ctx.beginPath();
-                    ctx.rect(slotX, slotY, slotW, slotH);
-                    ctx.clip();
-                    
-                    // Calculate scale to fill slot while maintaining aspect ratio
-                    const imgAspect = img.width / img.height;
-                    const slotAspect = slotW / slotH;
-                    
-                    let drawW, drawH, drawX, drawY;
-                    
-                    if (imgAspect > slotAspect) {
-                        drawH = slotH;
-                        drawW = drawH * imgAspect;
-                        drawX = slotX - (drawW - slotW) / 2;
-                        drawY = slotY;
-                    } else {
-                        drawW = slotW;
-                        drawH = drawW / imgAspect;
-                        drawX = slotX;
-                        drawY = slotY - (drawH - slotH) / 2;
-                    }
-                    
-                    // Apply rotation if specified
-                    if (slotConfig.rotation) {
-                        ctx.translate(slotX + slotW/2, slotY + slotH/2);
-                        ctx.rotate(slotConfig.rotation * Math.PI / 180);
-                        ctx.translate(-(slotX + slotW/2), -(slotY + slotH/2));
-                    }
-                    
-                    ctx.drawImage(img, drawX, drawY, drawW, drawH);
-                    ctx.restore();
-                    
-                    resolve();
-                };
-                img.src = photoSrc;
-            });
-        }
-
-        // Download & Share
-        function downloadResult(format) {
-            const canvas = document.getElementById('finalCanvas');
-            const link = document.createElement('a');
-            
-            const timestamp = new Date().getTime();
-            const filename = `photobooth_${timestamp}.${format}`;
-            
-            if (format === 'jpg') {
-                link.href = canvas.toDataURL('image/jpeg', 0.95);
-            } else {
-                link.href = canvas.toDataURL('image/png');
+            updatePhotoStrip() {
+                const container = document.getElementById('photoStrip');
+                
+                if (this.capturedPhotos.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-gray-400 py-8 text-sm">
+                            Belum ada foto. Klik tombol kamera untuk mulai!
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.capturedPhotos.map((photo, i) => `
+                    <div class="captured-thumb flex items-center gap-3 bg-white/5 rounded-lg p-2">
+                        <img src="${photo}" class="w-16 h-16 object-cover rounded-lg">
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold">Foto ${i + 1}</p>
+                            <p class="text-xs text-gray-400">Tersimpan</p>
+                        </div>
+                        <button onclick="app.removePhoto(${i})" class="p-2 hover:bg-white/10 rounded-lg text-red-400">
+                            ✕
+                        </button>
+                    </div>
+                `).join('');
             }
             
-            link.download = filename;
-            link.click();
-        }
-
-        async function shareResult() {
-            const canvas = document.getElementById('finalCanvas');
-            
-            try {
-                canvas.toBlob(async (blob) => {
-                    const file = new File([blob], 'photobooth-result.png', { type: 'image/png' });
-                    
-                    if (navigator.share && navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'My Photobooth Photo',
-                            text: 'Check out my photobooth photo!'
-                        });
-                    } else {
-                        // Fallback to download
-                        downloadResult('png');
+            updateSlotIndicators() {
+                const indicators = document.querySelectorAll('.slot-indicator');
+                indicators.forEach((ind, i) => {
+                    if (i < this.capturedPhotos.length) {
+                        ind.classList.add('bg-green-500', 'text-white');
+                        ind.innerHTML = '✓';
+                    } else if (i === this.capturedPhotos.length) {
+                        ind.classList.add('bg-pink-500', 'text-white', 'animate-pulse');
                     }
                 });
-            } catch (err) {
-                console.error('Share failed:', err);
-                downloadResult('png');
             }
-        }
-
-        function retakePhotos() {
-            state.photos = [];
-            state.currentPhotoIndex = 0;
-            goToCamera();
-            document.getElementById('btn-start').disabled = false;
-        }
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-            if (state.stream) {
-                state.stream.getTracks().forEach(track => track.stop());
+            
+            removePhoto(index) {
+                this.capturedPhotos.splice(index, 1);
+                this.updatePhotoStrip();
+                this.updateSlotMarkers();
+                
+                // Regenerate slot indicators
+                const indicators = document.getElementById('slotIndicators');
+                indicators.innerHTML = this.currentTemplate.slots.map((_, i) => `
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm slot-indicator" data-slot="${i}">
+                        ${i < this.capturedPhotos.length ? '✓' : (i === this.capturedPhotos.length ? '📷' : i + 1)}
+                    </div>
+                `).join('');
+                this.updateSlotIndicators();
+                
+                document.getElementById('resultPanel').classList.add('hidden');
             }
-        });
-
-        // Handle iOS orientation changes
-        window.addEventListener('orientationchange', () => {
-            setTimeout(() => {
-                if (state.stream && document.getElementById('screen-camera').classList.contains('active')) {
-                    const video = document.getElementById('video');
-                    video.style.transform = 'scaleX(-1)';
+            
+            compositePhotos() {
+                if (!this.currentTemplate || this.capturedPhotos.length === 0) return;
+                
+                const canvas = document.getElementById('compositeCanvas');
+                const ctx = canvas.getContext('2d');
+                const template = this.currentTemplate;
+                
+                // Set canvas size to template size
+                canvas.width = template.width;
+                canvas.height = template.height;
+                
+                // Fill background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Load and place each photo in its slot
+                const promises = this.capturedPhotos.map((photoData, i) => {
+                    if (i >= template.slots.length) return Promise.resolve();
+                    
+                    return new Promise((resolve) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const slot = template.slots[i];
+                            
+                            // Create clipping path for rounded corners
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.roundRect(slot.x, slot.y, slot.w, slot.h, 10);
+                            ctx.clip();
+                            
+                            // Calculate scaling to fill slot (cover mode)
+                            const scale = Math.max(slot.w / img.width, slot.h / img.height);
+                            const scaledW = img.width * scale;
+                            const scaledH = img.height * scale;
+                            const offsetX = slot.x + (slot.w - scaledW) / 2;
+                            const offsetY = slot.y + (slot.h - scaledH) / 2;
+                            
+                            ctx.drawImage(img, offsetX, offsetY, scaledW, scaledH);
+                            ctx.restore();
+                            
+                            // Draw slot border
+                            ctx.strokeStyle = 'rgba(0,0,0,0.1)';
+                            ctx.lineWidth = 2;
+                            ctx.strokeRect(slot.x, slot.y, slot.w, slot.h);
+                            
+                            resolve();
+                        };
+                        img.src = photoData;
+                    });
+                });
+                
+                Promise.all(promises).then(() => {
+                    // Draw frame overlay
+                    const frameImg = new Image();
+                    frameImg.onload = () => {
+                        ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+                        
+                        // Show result
+                        this.showResult();
+                    };
+                    frameImg.src = template.frame;
+                });
+            }
+            
+            showResult() {
+                const canvas = document.getElementById('compositeCanvas');
+                const finalCanvas = document.getElementById('finalCanvas');
+                
+                // Scale down for display
+                const maxWidth = 400;
+                const scale = Math.min(1, maxWidth / canvas.width);
+                finalCanvas.width = canvas.width * scale;
+                finalCanvas.height = canvas.height * scale;
+                
+                const ctx = finalCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, 0, finalCanvas.width, finalCanvas.height);
+                
+                document.getElementById('resultPanel').classList.remove('hidden');
+                document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            downloadResult() {
+                const canvas = document.getElementById('compositeCanvas');
+                const link = document.createElement('a');
+                link.download = `photobooth-${Date.now()}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            }
+            
+            printResult() {
+                const canvas = document.getElementById('compositeCanvas');
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head><title>Print Photobooth</title></head>
+                        <body style="margin:0; display:flex; justify-content:center; align-items:center; min-height:100vh;">
+                            <img src="${canvas.toDataURL()}" style="max-width:100%; height:auto;">
+                            <script>
+                                setTimeout(() => {
+                                    window.print();
+                                    window.close();
+                                }, 100);
+                            <\/script>
+                        </body>
+                    </html>
+                `);
+            }
+            
+            shareResult() {
+                const canvas = document.getElementById('compositeCanvas');
+                canvas.toBlob(async (blob) => {
+                    if (navigator.share && navigator.canShare) {
+                        const file = new File([blob], 'photobooth.jpg', { type: 'image/jpeg' });
+                        try {
+                            await navigator.share({
+                                title: 'My Photobooth Photo',
+                                text: 'Check out my photobooth photo!',
+                                files: [file]
+                            });
+                        } catch (err) {
+                            console.log('Share canceled');
+                        }
+                    } else {
+                        // Fallback: copy to clipboard or show QR
+                        this.downloadResult();
+                        alert('Foto disimpan! Bagikan melalui aplikasi favorit Anda.');
+                    }
+                });
+            }
+            
+            resetSession() {
+                this.capturedPhotos = [];
+                this.isCapturing = false;
+                document.getElementById('captureBtn').disabled = false;
+                document.getElementById('captureProgress').classList.add('hidden');
+                document.getElementById('resultPanel').classList.add('hidden');
+                this.updatePhotoStrip();
+                this.updateSlotMarkers();
+                
+                // Reset indicators
+                const indicators = document.getElementById('slotIndicators');
+                if (this.currentTemplate) {
+                    indicators.innerHTML = this.currentTemplate.slots.map((_, i) => `
+                        <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm slot-indicator" data-slot="${i}">
+                            ${i + 1}
+                        </div>
+                    `).join('');
                 }
-            }, 300);
+            }
+            
+            // Template Manager
+            showTemplateManager() {
+                const modal = document.getElementById('templateModal');
+                const grid = document.getElementById('templateGrid');
+                
+                grid.innerHTML = this.templates.map(t => `
+                    <div class="template-card glass-panel rounded-xl p-4 ${this.currentTemplate?.id === t.id ? 'active' : ''}" 
+                         onclick="app.selectTemplateFromModal('${t.id}')">
+                        <div class="aspect-[3/4] bg-gray-800 rounded-lg mb-3 overflow-hidden relative">
+                            <img src="${t.frame}" class="w-full h-full object-contain">
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-4xl opacity-30">🖼️</span>
+                            </div>
+                        </div>
+                        <h4 class="font-semibold text-sm">${t.name}</h4>
+                        <p class="text-xs text-gray-400 mt-1">${t.slots.length} slots</p>
+                    </div>
+                `).join('');
+                
+                modal.classList.remove('hidden');
+            }
+            
+            selectTemplateFromModal(id) {
+                const template = this.templates.find(t => t.id === id);
+                if (template) {
+                    this.selectTemplate(template);
+                    this.resetSession();
+                    this.closeTemplateModal();
+                }
+            }
+            
+            closeTemplateModal() {
+                document.getElementById('templateModal').classList.add('hidden');
+            }
+            
+            // Template Editor
+            editCurrentTemplate() {
+                if (!this.currentTemplate) return;
+                this.openEditor(this.currentTemplate);
+            }
+            
+            openEditor(template) {
+                this.editingTemplate = JSON.parse(JSON.stringify(template));
+                document.getElementById('editorFrame').src = template.frame;
+                document.getElementById('editorModal').classList.remove('hidden');
+                this.initEditorCanvas();
+            }
+            
+            initEditorCanvas() {
+                const canvas = document.getElementById('editorCanvas');
+                const container = document.getElementById('editorContainer');
+                
+                // Set canvas size to match container
+                canvas.width = container.offsetWidth;
+                canvas.height = container.offsetHeight;
+                
+                this.drawEditorSlots();
+                this.setupEditorEvents();
+            }
+            
+            drawEditorSlots() {
+                const canvas = document.getElementById('editorCanvas');
+                const ctx = canvas.getContext('2d');
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Calculate scale to fit template in canvas
+                const img = document.getElementById('editorFrame');
+                const scaleX = canvas.width / this.editingTemplate.width;
+                const scaleY = canvas.height / this.editingTemplate.height;
+                const scale = Math.min(scaleX, scaleY);
+                
+                this.editorScale = scale;
+                this.editorOffsetX = (canvas.width - this.editingTemplate.width * scale) / 2;
+                this.editorOffsetY = (canvas.height - this.editingTemplate.height * scale) / 2;
+                
+                // Draw slots
+                this.editingTemplate.slots.forEach((slot, i) => {
+                    const x = this.editorOffsetX + slot.x * scale;
+                    const y = this.editorOffsetY + slot.y * scale;
+                    const w = slot.w * scale;
+                    const h = slot.h * scale;
+                    
+                    ctx.strokeStyle = i === this.selectedSlotIndex ? '#10b981' : '#3b82f6';
+                    ctx.lineWidth = 3;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(x, y, w, h);
+                    
+                    ctx.fillStyle = i === this.selectedSlotIndex ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.2)';
+                    ctx.fillRect(x, y, w, h);
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(i + 1, x + w/2, y + h/2);
+                });
+                
+                ctx.setLineDash([]);
+            }
+            
+            setupEditorEvents() {
+                const canvas = document.getElementById('editorCanvas');
+                let isDrawing = false;
+                let startX, startY;
+                
+                canvas.onmousedown = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    startX = e.clientX - rect.left;
+                    startY = e.clientY - rect.top;
+                    isDrawing = true;
+                };
+                
+                canvas.onmousemove = (e) => {
+                    if (!isDrawing) return;
+                    const rect = canvas.getBoundingClientRect();
+                    const currentX = e.clientX - rect.left;
+                    const currentY = e.clientY - rect.top;
+                    
+                    this.drawEditorSlots();
+                    const ctx = canvas.getContext('2d');
+                    ctx.strokeStyle = '#10b981';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(startX, startY, currentX - startX, currentY - startY);
+                };
+                
+                canvas.onmouseup = (e) => {
+                    if (!isDrawing) return;
+                    isDrawing = false;
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const endX = e.clientX - rect.left;
+                    const endY = e.clientY - rect.top;
+                    
+                    const x = Math.min(startX, endX);
+                    const y = Math.min(startY, endY);
+                    const w = Math.abs(endX - startX);
+                    const h = Math.abs(endY - startY);
+                    
+                    // Convert to template coordinates
+                    const templateX = (x - this.editorOffsetX) / this.editorScale;
+                    const templateY = (y - this.editorOffsetY) / this.editorScale;
+                    const templateW = w / this.editorScale;
+                    const templateH = h / this.editorScale;
+                    
+                    if (templateW > 20 && templateH > 20) {
+                        this.editingTemplate.slots.push({
+                            x: Math.max(0, templateX),
+                            y: Math.max(0, templateY),
+                            w: templateW,
+                            h: templateH
+                        });
+                        this.drawEditorSlots();
+                    }
+                };
+            }
+            
+            addSlot() {
+                // Add default slot in center
+                this.editingTemplate.slots.push({
+                    x: this.editingTemplate.width / 2 - 75,
+                    y: this.editingTemplate.height / 2 - 75,
+                    w: 150,
+                    h: 150
+                });
+                this.drawEditorSlots();
+            }
+            
+            clearSlots() {
+                this.editingTemplate.slots = [];
+                this.drawEditorSlots();
+            }
+            
+            closeEditor() {
+                document.getElementById('editorModal').classList.add('hidden');
+            }
+            
+            saveTemplate() {
+                // Update current template or create new
+                if (this.currentTemplate && this.currentTemplate.id === this.editingTemplate.id) {
+                    this.currentTemplate.slots = this.editingTemplate.slots;
+                }
+                
+                // Save to localStorage
+                this.saveTemplatesToStorage();
+                
+                this.closeEditor();
+                this.updateSlotMarkers();
+                alert('Template disimpan!');
+            }
+            
+            // Settings
+            updatePhotoCount(val) {
+                this.photoCount = parseInt(val);
+                document.getElementById('photoCountDisplay').textContent = val;
+                document.getElementById('totalPhotos').textContent = val;
+                this.resetSession();
+            }
+            
+            updateCountdown(val) {
+                this.countdownDuration = parseInt(val);
+                document.getElementById('countdownDisplay').textContent = val;
+            }
+            
+            toggleMirror() {
+                this.mirrorEnabled = !this.mirrorEnabled;
+                const video = document.getElementById('camera');
+                const btn = document.getElementById('mirrorBtn');
+                
+                if (this.mirrorEnabled) {
+                    video.classList.add('live-preview');
+                    btn.classList.add('bg-green-500');
+                    btn.classList.remove('bg-gray-600');
+                    btn.querySelector('div').classList.remove('translate-x-0');
+                    btn.querySelector('div').classList.add('right-1');
+                    btn.querySelector('div').style.transform = 'translateX(0)';
+                } else {
+                    video.classList.remove('live-preview');
+                    btn.classList.remove('bg-green-500');
+                    btn.classList.add('bg-gray-600');
+                    btn.querySelector('div').style.transform = 'translateX(-24px)';
+                }
+            }
+            
+            // Utilities
+            sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            toggleCamera() {
+                // Toggle between front/back camera
+                // Implementation depends on device capabilities
+                this.initCamera();
+            }
+            
+            toggleFullscreen() {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen();
+                } else {
+                    document.exitFullscreen();
+                }
+            }
+            
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && !this.isCapturing) {
+                        e.preventDefault();
+                        this.startCapture();
+                    }
+                    if (e.code === 'KeyR' && e.ctrlKey) {
+                        e.preventDefault();
+                        this.resetSession();
+                    }
+                });
+            }
+            
+            // Storage
+            saveTemplatesToStorage() {
+                localStorage.setItem('photobooth_templates', JSON.stringify(this.templates));
+            }
+            
+            loadSavedTemplates() {
+                const saved = localStorage.getItem('photobooth_templates');
+                if (saved) {
+                    try {
+                        const parsed = JSON.parse(saved);
+                        this.templates = [...this.templates, ...parsed.filter(t => !this.templates.find(et => et.id === t.id))];
+                    } catch (e) {
+                        console.error('Failed to load saved templates');
+                    }
+                }
+            }
+            
+            updateUI() {
+                document.getElementById('totalPhotos').textContent = this.photoCount;
+            }
+        }
+        
+        // Initialize app
+        const app = new PhotoboothApp();
+        
+        // Handle file upload
+        document.getElementById('frameUpload').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    const newTemplate = {
+                        id: 'custom_' + Date.now(),
+                        name: file.name.replace('.png', '').replace('.jpg', ''),
+                        frame: event.target.result,
+                        slots: [],
+                        width: img.width,
+                        height: img.height
+                    };
+                    
+                    app.templates.push(newTemplate);
+                    app.selectTemplate(newTemplate);
+                    app.openEditor(newTemplate);
+                    app.closeTemplateModal();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
         });
     </script>
 </body>
